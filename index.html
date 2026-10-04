@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Воркшоп для ручних QA: Playwright-проєкт з нуля за 4 години за допомогою скілів Claude Code. API-контрактні та E2E-тести на вашому продукті.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Playwright-проєкт за 4 години — воркшоп для ручних QA">
+<meta property="og:description" content="Воркшоп для ручних QA: Playwright-проєкт з нуля за 4 години за допомогою скілів Claude Code. API-контрактні та E2E-тести на вашому продукті.">
+<meta property="og:url" content="https://igorsolop0.github.io/playwright-workshop/">
+<link rel="canonical" href="https://igorsolop0.github.io/playwright-workshop/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B7A53'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Playwright за 4 години</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: one column of wide bands; the hero pairs the promise with a test-run report, and the run report motif returns once, as the interactive "break the test" demo. */
+:root {
+  --bg: #F3F6F4;
+  --surface: #FFFFFF;
+  --ink: #0E2A2B;
+  --muted: #4E6566;
+  --line: #CFDAD6;
+  --accent: #0B7A53;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #DCEFE6;
+  --fail: #B4321F;
+  --term-bg: #0C1F20;
+  --term-fg: #D5E4DF;
+  --term-dim: #7E9995;
+  --term-pass: #5AD19A;
+  --term-fail: #FF8A75;
+  --term-line: #1E3A3B;
+  --display: 'Unbounded', 'Arial Black', Arial, sans-serif;
+  --body: 'Onest', 'Segoe UI', Arial, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1819; --surface: #112526; --ink: #E6F0EC; --muted: #9DB3AF; --line: #244041;
+    --accent: #4CC38F; --accent-ink: #062016; --accent-soft: #15362C; --fail: #FF8A75;
+    --term-bg: #061213; --term-line: #1B3435;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1819; --surface: #112526; --ink: #E6F0EC; --muted: #9DB3AF; --line: #244041;
+  --accent: #4CC38F; --accent-ink: #062016; --accent-soft: #15362C; --fail: #FF8A75;
+  --term-bg: #061213; --term-line: #1B3435;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+  padding-inline: 20px;
+}
+.wrap { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+h1, h2 { font-family: var(--display); text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.1rem, 6vw, 4rem); line-height: 1.08; font-weight: 700; }
+h2 { font-size: clamp(1.5rem, 3.4vw, 2.3rem); line-height: 1.15; font-weight: 500; }
+h3 { font-size: 1.15rem; line-height: 1.3; font-weight: 700; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.label {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); font-weight: 500;
+}
+.lead { font-size: 1.2rem; color: var(--muted); max-width: 34em; }
+.muted { color: var(--muted); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 600 1rem var(--body); text-decoration: none; cursor: pointer;
+  padding: 14px 24px; border-radius: 6px; border: 2px solid var(--accent);
+  background: var(--accent); color: var(--accent-ink);
+}
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); filter: none; }
+
+/* top bar */
+.top {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 12px 24px; padding-block: 20px;
+}
+.top .who { font-weight: 700; }
+.top nav { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 0.95rem; }
+.top nav a { text-decoration: none; color: var(--muted); }
+.top nav a:hover { color: var(--ink); }
+
+/* hero */
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 48px; align-items: center; padding-block: 40px 72px;
+}
+.hero-copy { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 0.95rem; color: var(--muted); }
+.facts b { color: var(--ink); font-weight: 600; }
+
+.term {
+  background: var(--term-bg); color: var(--term-fg); border-radius: 10px;
+  font-family: var(--mono); font-size: 0.86rem; line-height: 1.75;
+  min-width: 0; overflow: hidden;
+}
+.term-head {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 10px 18px; border-bottom: 1px solid var(--term-line); color: var(--term-dim);
+}
+.term-body { padding: 16px 18px 20px; overflow-x: auto; }
+.term-body p { white-space: pre; }
+.term .ok { color: var(--term-pass); }
+.term .bad { color: var(--term-fail); }
+.term .dim { color: var(--term-dim); }
+
+/* bands */
+.band { padding-block: 72px; border-top: 1px solid var(--line); }
+.band-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; max-width: 46em; }
+
+.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.cols3 li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cols3 p { color: var(--muted); }
+
+.fit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.fit > div {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 28px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
+}
+.fit ul { display: flex; flex-direction: column; gap: 10px; }
+.fit li { padding-left: 26px; position: relative; }
+.fit li::before { position: absolute; left: 0; font-family: var(--mono); font-weight: 700; }
+.fit .yes li::before { content: "✓"; color: var(--accent); }
+.fit .no li::before { content: "✘"; color: var(--fail); }
+
+.out { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.out li { padding: 26px 22px; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid var(--line); min-width: 0; }
+.out li:first-child { border-left: 0; }
+.out .n { font-family: var(--display); font-size: 2.6rem; line-height: 1; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.out .t { font-weight: 600; }
+.out .d { color: var(--muted); font-size: 0.95rem; }
+
+.plan { display: flex; flex-direction: column; }
+.plan li {
+  display: grid; grid-template-columns: 9.5em minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px 28px; padding-block: 20px; border-top: 1px solid var(--line);
+}
+.plan li:last-child { border-bottom: 1px solid var(--line); }
+.plan .time { font-family: var(--mono); font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; }
+.plan .res { color: var(--muted); }
+.plan .skill { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+
+.method { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.method-copy { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.method-copy ol { display: flex; flex-direction: column; gap: 12px; counter-reset: step; }
+.method-copy ol li { padding-left: 38px; position: relative; counter-increment: step; }
+.method-copy ol li::before {
+  content: counter(step); position: absolute; left: 0; top: 1px;
+  width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+  font: 700 0.85rem/26px var(--mono); text-align: center;
+}
+.demo { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.demo .btn { align-self: flex-start; }
+.demo-note { font-size: 0.95rem; color: var(--muted); }
+
+.proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.proof article { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.proof dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 18px; align-items: baseline; }
+.proof dt { font-family: var(--display); font-weight: 700; font-size: 1.5rem; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.proof dd { color: var(--muted); }
+.source { font-size: 0.9rem; color: var(--muted); margin-top: 20px; max-width: 60em; }
+
+.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; }
+.about-id { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.about-id .name { font-family: var(--display); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.about-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.about-body ul { display: flex; flex-direction: column; gap: 10px; }
+.about-body li { padding-left: 20px; position: relative; }
+.about-body li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 8px; height: 2px; background: var(--accent); }
+.links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--mono); font-size: 0.88rem; }
+.links a { color: var(--accent); overflow-wrap: anywhere; }
+
+.terms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
+.terms div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.terms dt { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.terms dd { font-weight: 600; }
+
+.faq { display: flex; flex-direction: column; max-width: 52em; }
+.faq details { border-top: 1px solid var(--line); padding-block: 18px; }
+.faq details:last-child { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 1.08rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--mono); color: var(--accent); flex: none; }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { color: var(--muted); margin-top: 10px; max-width: 46em; }
+
+.final {
+  background: var(--term-bg); color: var(--term-fg); border-radius: 14px;
+  padding: 56px 40px; margin-block: 24px 40px;
+  display: flex; flex-direction: column; gap: 22px; align-items: flex-start;
+}
+.final h2 { color: var(--term-fg); max-width: 18em; }
+.final p { color: var(--term-dim); max-width: 38em; }
+.final .btn { background: var(--term-pass); border-color: var(--term-pass); color: #062016; }
+.final .btn.ghost { background: transparent; color: var(--term-fg); border-color: var(--term-line); }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 0 40px; font-size: 0.9rem; color: var(--muted); }
+
+@media (max-width: 860px) {
+  .hero, .method, .about { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .hero { padding-block: 24px 56px; }
+  .cols3, .fit, .proof { grid-template-columns: minmax(0, 1fr); }
+  .out { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .out li:nth-child(odd) { border-left: 0; }
+  .out li:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .plan li { grid-template-columns: minmax(0, 1fr); }
+  .terms { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band { padding-block: 52px; }
+  .final { padding: 40px 24px; }
+}
+@media (max-width: 460px) {
+  .terms { grid-template-columns: minmax(0, 1fr); }
+  .term { font-size: 0.76rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="who">Ігор Солопій · QA</span>
+  <nav aria-label="Розділи">
+    <a href="#program">Програма</a>
+    <a href="#proof">Цифри</a>
+    <a href="#about">Ведучий</a>
+    <a href="#faq">Питання</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="label">Воркшоп для manual QA</p>
+    <h1>Playwright-проєкт за <em>4 години</em></h1>
+    <p class="lead">Для команд, де автоматизації немає і немає кому її писати. Приходите з ручним тестуванням, виходите з налаштованим проєктом, першими API- та E2E-тестами і прогоном у CI.</p>
+    <div class="cta-row">
+      <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
+      <a class="btn ghost" href="#program">Подивитись програму</a>
+    </div>
+    <p class="facts">
+      <span><b>Наживо</b>, 4 години</span>
+      <span><b>4–8</b> учасників</span>
+      <span>На <b>вашому продукті</b></span>
+    </p>
+  </div>
+
+  <figure class="term" aria-label="Звіт прогону тестів наприкінці воркшопу">
+    <div class="term-head"><span>npx playwright test</span><span>кінець воркшопу</span></div>
+    <div class="term-body">
+<p class="dim">Running 10 tests using 4 workers</p>
+<p> </p>
+<p><span class="ok">  ✓</span>  setup › авторизація збережена</p>
+<p><span class="ok">  ✓</span>  api-users › GET /users/me › 200, схема</p>
+<p><span class="ok">  ✓</span>  api-users › GET /users/me › 401 без токена</p>
+<p><span class="ok">  ✓</span>  api-users › PATCH /users/me › 422</p>
+<p><span class="ok">  ✓</span>  api-orders › POST /orders › 201, схема</p>
+<p><span class="ok">  ✓</span>  api-orders › POST /orders › 401</p>
+<p><span class="ok">  ✓</span>  api-orders › POST /orders › 422</p>
+<p><span class="ok">  ✓</span>  api-orders › створити → змінити → прочитати</p>
+<p><span class="ok">  ✓</span>  e2e › вхід і головний сценарій</p>
+<p><span class="ok">  ✓</span>  e2e › сценарій перед релізом</p>
+<p> </p>
+<p><span class="ok">  10 passed</span> <span class="dim">(41.2s)</span></p>
+    </div>
+  </figure>
+</section>
+
+<section class="band" id="problem">
+  <div class="band-head">
+    <p class="label">Чому не починають</p>
+    <h2>Перешкода не в тестах, а в першому кроці</h2>
+  </div>
+  <ul class="cols3">
+    <li><h3>Незрозуміло, з чого почати</h3><p>Конфіг, середовища, авторизація, структура папок. До першого тесту треба прийняти десяток рішень, і кожне можна прийняти неправильно.</p></li>
+    <li><h3>Немає кому показати</h3><p>В команді немає автоматизатора, найняти його не планують. Розробники зайняті своїм.</p></li>
+    <li><h3>AI пише тести, які нічого не перевіряють</h3><p>Запит до чат-бота дає сотню зелених тестів. Частина з них не впаде, навіть якщо продукт зламається.</p></li>
+  </ul>
+</section>
+
+<section class="band" id="fit">
+  <div class="band-head">
+    <p class="label">Кому це підійде</p>
+    <h2>Воркшоп для тих, хто вже вміє тестувати</h2>
+  </div>
+  <div class="fit">
+    <div class="yes">
+      <h3>Підійде, якщо ви</h3>
+      <ul>
+        <li>тестуєте руками й читаєте запити у DevTools або Postman</li>
+        <li>вмієте відкрити термінал і вставити команду</li>
+        <li>хочете зняти з себе регресію, яку проходите перед кожним релізом</li>
+        <li>маєте тестове середовище свого продукту</li>
+        <li>працюєте в аутсорсі й часто міняєте проєкти: на кожному новому тести треба піднімати з нуля</li>
+      </ul>
+    </div>
+    <div class="no">
+      <h3>Не підійде, якщо ви</h3>
+      <ul>
+        <li>вже маєте робочий Playwright-проєкт і шукаєте просунуті теми</li>
+        <li>не можете встановлювати програми на робочий комп'ютер</li>
+        <li>чекаєте, що AI писатиме тести без вашої перевірки</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="outcome">
+  <div class="band-head">
+    <p class="label">З чим виходите</p>
+    <h2>Робочий проєкт у вашому репозиторії</h2>
+    <p class="lead">Не конспект і не демо на чужому сайті. Код лежить у вас, запускається у вас і перевіряє ваш продукт.</p>
+  </div>
+  <ul class="out">
+    <li><span class="n">6</span><span class="t">API contract тестів</span><span class="d">Два ендпоінти: успіх, без авторизації, невалідні дані</span></li>
+    <li><span class="n">1</span><span class="t">E2E-сценарій через API</span><span class="d">Створити, змінити, прочитати назад</span></li>
+    <li><span class="n">2</span><span class="t">E2E-тести в браузері</span><span class="d">З Page Object і збереженим входом</span></li>
+    <li><span class="n">1</span><span class="t">Прогін у CI</span><span class="d">Кнопка запуску з вибором частини продукту</span></li>
+  </ul>
+</section>
+
+<section class="band" id="program">
+  <div class="band-head">
+    <p class="label">Програма</p>
+    <h2>Чотири години по хвилинах</h2>
+  </div>
+  <ol class="plan">
+    <li><span class="time">0:00 – 0:15</span><div><h3>Навіщо і що вийде</h3></div><p class="res">Готовий проєкт на екрані, один прогін, звіт.</p></li>
+    <li><span class="time">0:15 – 1:15</span><div><h3>Розгортання</h3><p class="skill">pw-project-bootstrap</p></div><p class="res">Скіл ставить питання про ваш проєкт і збирає конфіг, авторизацію, типи зі Swagger. Перший зелений тест.</p></li>
+    <li><span class="time">1:15 – 2:30</span><div><h3>API contract тести</h3><p class="skill">qa-shift-left → api-contract-writer</p></div><p class="res">Спочатку список сценаріїв, який ви затверджуєте. Потім код. Шість тестів на два ендпоінти.</p></li>
+    <li><span class="time">2:40 – 3:30</span><div><h3>E2E: API-сценарій і браузер</h3><p class="skill">pw-pom-generator</p></div><p class="res">Правило «200 ще не означає, що збереглося». Два тести в браузері.</p></li>
+    <li><span class="time">3:30 – 3:50</span><div><h3>Чесність тестів</h3><p class="skill">api-contract-reviewer, pw-test-review</p></div><p class="res">Рев'ю власних тестів і вправа «зламай тест».</p></li>
+    <li><span class="time">3:50 – 4:00</span><div><h3>CI і план на два тижні</h3></div><p class="res">Ручний запуск у CI. Який домен покриваєте далі.</p></li>
+  </ol>
+</section>
+
+<section class="band" id="method">
+  <div class="band-head">
+    <p class="label">Як це працює</p>
+    <h2>Шість тестів, а не шістдесят</h2>
+  </div>
+  <div class="method">
+    <div class="method-copy">
+      <p>Скіл — це записаний досвід: як має виглядати проєкт, які тести потрібні, де AI зазвичай помиляється. Ви не пишете довгий промпт. Скіл питає, ви відповідаєте й затверджуєте.</p>
+      <ol>
+        <li><b>Тест-дизайн.</b> Скіл розбирає фічу шар за шаром і пропонує короткий список сценаріїв з пріоритетами. Зайве ви викреслюєте.</li>
+        <li><b>Код.</b> Тести пишуться тільки за затвердженим списком.</li>
+        <li><b>Рев'ю.</b> Окремий скіл шукає тести, які не можуть упасти.</li>
+        <li><b>Поломка.</b> Ви навмисно ламаєте перевірку й бачите червоний результат.</li>
+      </ol>
+    </div>
+    <div class="demo">
+      <figure class="term" aria-live="polite">
+        <div class="term-head"><span>users.spec.ts</span><span id="demoState">зелений</span></div>
+        <div class="term-body">
+<p class="dim">const response = await api.users.me();</p>
+<p>expect(response.status()).toBe(<span id="demoCode" class="ok">200</span>);</p>
+<p> </p>
+<p id="demoLine1"><span class="ok">  ✓</span>  GET /users/me › 200, схема</p>
+<p id="demoLine2" class="dim">  1 passed</p>
+        </div>
+      </figure>
+      <button class="btn ghost" id="demoBtn" type="button">Зламати тест</button>
+      <p class="demo-note">Тест, який лишається зеленим після поломки, нічого не перевіряє. Цю вправу кожен учасник робить на власних тестах.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="proof">
+  <div class="band-head">
+    <p class="label">Цифри</p>
+    <h2>Що цей підхід дав на реальних продуктах</h2>
+  </div>
+  <div class="proof">
+    <article>
+      <h3>iGaming-портал</h3>
+      <dl>
+        <dt>0 → 73</dt><dd>API-тести в основній гілці за 9 робочих днів</dd>
+        <dt>20 / 45</dt><dd>ендпоінтів під контрактом</dd>
+        <dt>17</dt><dd>дефектів бекенду знайдено контрактними тестами</dd>
+      </dl>
+    </article>
+    <article>
+      <h3>EdTech-платформа</h3>
+      <dl>
+        <dt>22 → 46</dt><dd>тестів одного модуля за три тижні</dd>
+        <dt>1–2 хв</dt><dd>триває прогін цього набору локально</dd>
+        <dt>6/7 і 3/7</dt><dd>оцінки QA з AI-асистентом і повністю автономного агента у власному аудиті</dd>
+      </dl>
+    </article>
+  </div>
+  <p class="source">Цифри з історії комітів і робочих нотаток автора, вересень–жовтень 2026. Назви продуктів приховано. Це результати досвідченого QA; для першого тижня після воркшопу реалістично 20–30 тестів на один домен.</p>
+</section>
+
+<section class="band" id="about">
+  <div class="band-head">
+    <p class="label">Ведучий</p>
+  </div>
+  <div class="about">
+    <div class="about-id">
+      <p class="name">Ігор Солопій</p>
+      <p class="muted">Senior QA Engineer, Відень</p>
+      <p class="links">
+        <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">linkedin.com/in/ihor-solopii-a9585a118</a>
+        <a href="https://github.com/Igorsolop0" target="_blank" rel="noopener">github.com/Igorsolop0</a>
+      </p>
+    </div>
+    <div class="about-body">
+      <ul>
+        <li>Понад 10 років у тестуванні: веб, мобільні застосунки, API.</li>
+        <li>Керував командою з 10 QA-інженерів, ручних і автоматизаторів.</li>
+        <li>Будує Playwright-проєкти й набори API contract тестів і підключає їх до CI.</li>
+        <li>Пише скіли для Claude Code, якими користуються на воркшопі. Вони відкриті: <a href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">qa-claude-skills</a>.</li>
+        <li>Автор Burger-методу тест-дизайну, на якому побудований крок зі сценаріями.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="terms">
+  <div class="band-head">
+    <p class="label">Формат</p>
+    <h2>Як проходить воркшоп</h2>
+  </div>
+  <dl class="terms">
+    <div><dt>Тривалість</dt><dd>4 години з однією перервою</dd></div>
+    <div><dt>Група</dt><dd>4–8 учасників, робота парами</dd></div>
+    <div><dt>На чому</dt><dd>Ваш продукт і ваш репозиторій</dd></div>
+    <div><dt>До воркшопу</dt><dd>Дзвінок 45 хв і чеклист підготовки</dd></div>
+    <div><dt>Після</dt><dd>Дві зустрічі по годині: рев'ю ваших PR</dd></div>
+    <div><dt>Дати й вартість</dt><dd>Узгоджуємо з командою</dd></div>
+  </dl>
+</section>
+
+<section class="band" id="faq">
+  <div class="band-head">
+    <p class="label">Питання</p>
+    <h2>Про що питають до початку</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>Чи треба вміти програмувати?</summary>
+      <p>Ні. Код пише скіл, ви вирішуєте, що перевіряти, і перевіряєте результат. Потрібен базовий термінал: перейти в папку, вставити команду, прочитати помилку.</p>
+    </details>
+    <details>
+      <summary>Що встановити заздалегідь?</summary>
+      <p>Node.js, git, редактор коду і Claude Code. За тиждень до воркшопу надсилаю чеклист із командою самоперевірки. Хто її не пройшов, отримує окрему коротку сесію налаштування.</p>
+    </details>
+    <details>
+      <summary>У нас немає Swagger. Це проблема?</summary>
+      <p>Ні, але зі Swagger швидше: типи генеруються однією командою. Без нього схему відповіді беремо з реального запиту, і ви її підтверджуєте.</p>
+    </details>
+    <details>
+      <summary>Що з підпискою на Claude Code?</summary>
+      <p>Кожному учаснику потрібен доступ до Claude Code. План і оплату узгоджуємо на дзвінку, щоб ліміту вистачило на всі чотири години.</p>
+    </details>
+    <details>
+      <summary>Чи безпечно давати AI доступ до коду компанії?</summary>
+      <p>Це рішення вашої команди безпеки, його треба отримати до воркшопу. Паролі й токени в чат не вставляються: вони лежать у локальному файлі, який не потрапляє в git.</p>
+    </details>
+    <details>
+      <summary>AI не згенерує сотні непотрібних тестів?</summary>
+      <p>Згенерує, якщо просити його прямо. Тому спочатку йде тест-дизайн: короткий список сценаріїв, який затверджуєте ви. Орієнтир: три тести на ендпоінт і один-два тести в браузері на зміну.</p>
+    </details>
+    <details>
+      <summary>Скіл підійде до мого проєкту?</summary>
+      <p>Стартує на будь-якому. Жоден скіл не робить усе за один виклик: далі ви доточуєте його під свій продукт, і це нормально. Особливості продукту записуються в один файл проєкту, а скіл сам пропонує, що туди додати. На воркшопі показуємо, як це робити.</p>
+    </details>
+    <details>
+      <summary>Що буде через місяць?</summary>
+      <p>Проєкту потрібен власник у команді. На останніх десяти хвилинах домовляємось, хто це, який домен покривається першим і хто рев'ює PR. Дві зустрічі після воркшопу допомагають не зупинитись.</p>
+    </details>
+  </div>
+</section>
+
+<section class="final">
+  <h2>Оберіть два ендпоінти й один сценарій</h2>
+  <p>Той, який команда перевіряє руками перед кожним релізом. З них почнемо. Напишіть мені, і домовимось про дзвінок на 45 хвилин.</p>
+  <div class="cta-row">
+    <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
+    <a class="btn ghost" href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">Подивитись скіли</a>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>Ігор Солопій · Відень</span>
+  <span>Playwright-проєкт за 4 години</span>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('demoBtn');
+  var code = document.getElementById('demoCode');
+  var line1 = document.getElementById('demoLine1');
+  var line2 = document.getElementById('demoLine2');
+  var state = document.getElementById('demoState');
+  var broken = false;
+  btn.addEventListener('click', function () {
+    broken = !broken;
+    if (broken) {
+      code.textContent = '201';
+      code.className = 'bad';
+      line1.innerHTML = '<span class="bad">  ✘</span>  GET /users/me › 200, схема';
+      line2.className = 'bad';
+      line2.textContent = '  Expected: 201   Received: 200';
+      state.textContent = 'червоний';
+      btn.textContent = 'Полагодити тест';
+    } else {
+      code.textContent = '200';
+      code.className = 'ok';
+      line1.innerHTML = '<span class="ok">  ✓</span>  GET /users/me › 200, схема';
+      line2.className = 'dim';
+      line2.textContent = '  1 passed';
+      state.textContent = 'зелений';
+      btn.textContent = 'Зламати тест';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
