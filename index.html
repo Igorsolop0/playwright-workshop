@@ -184,8 +184,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 .about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; }
 .about-id { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.portrait { display: block; width: 100%; max-width: 340px; height: auto; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 14px; }
-.about-id .name { font-family: var(--display); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.who-row { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+.who-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.avatar { flex: none; width: 76px; height: 76px; border-radius: 50%; border: 1px solid var(--line); object-fit: cover; }
+.about-id .name { font-family: var(--display); font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
 .about-body { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 .about-body ul { display: flex; flex-direction: column; gap: 10px; }
 .about-body li { padding-left: 20px; position: relative; }
@@ -425,9 +427,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   </div>
   <div class="about">
     <div class="about-id">
-      <img class="portrait" src="assets/ihor-solopii.jpg" alt="Ігор Солопій" width="800" height="1215" loading="lazy">
-      <p class="name">Ігор Солопій</p>
-      <p class="muted">Senior QA Engineer, Відень</p>
+      <div class="who-row">
+        <img class="avatar" src="assets/ihor-solopii-avatar.jpg" alt="" width="240" height="240" loading="lazy">
+        <div>
+          <p class="name">Ігор Солопій</p>
+          <p class="muted">Senior QA Engineer, Відень</p>
+        </div>
+      </div>
       <p class="links">
         <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">linkedin.com/in/ihor-solopii-a9585a118</a>
         <a href="https://github.com/Igorsolop0" target="_blank" rel="noopener">github.com/Igorsolop0</a>
