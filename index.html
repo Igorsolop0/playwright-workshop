@@ -126,6 +126,26 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .term .bad { color: var(--term-fail); }
 .term .dim { color: var(--term-dim); }
 
+/* hero terminal run animation */
+@media (prefers-reduced-motion: no-preference) {
+  .term-body.run p { opacity: 0; animation: termLine 0.4s ease forwards; }
+  .term-body.run p:nth-child(1) { animation-delay: 0.3s; }
+  .term-body.run p:nth-child(2) { animation-delay: 0.6s; }
+  .term-body.run p:nth-child(3) { animation-delay: 1.0s; }
+  .term-body.run p:nth-child(4) { animation-delay: 1.3s; }
+  .term-body.run p:nth-child(5) { animation-delay: 1.6s; }
+  .term-body.run p:nth-child(6) { animation-delay: 1.9s; }
+  .term-body.run p:nth-child(7) { animation-delay: 2.2s; }
+  .term-body.run p:nth-child(8) { animation-delay: 2.5s; }
+  .term-body.run p:nth-child(9) { animation-delay: 2.8s; }
+  .term-body.run p:nth-child(10) { animation-delay: 3.1s; }
+  .term-body.run p:nth-child(11) { animation-delay: 3.4s; }
+  .term-body.run p:nth-child(12) { animation-delay: 3.7s; }
+  .term-body.run p:nth-child(13) { animation-delay: 4.2s; }
+  .term-body.run p:nth-child(14) { animation-delay: 4.6s; }
+  @keyframes termLine { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+}
+
 /* bands */
 .band { padding-block: 72px; border-top: 1px solid var(--line); }
 .band-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; max-width: 46em; }
@@ -182,11 +202,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .proof dd { color: var(--muted); }
 .source { font-size: 0.9rem; color: var(--muted); margin-top: 20px; max-width: 60em; }
 
-.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; }
-.about-id { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.who-row { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; align-items: start; }
+.about-id { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.who-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .who-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.avatar { flex: none; width: 76px; height: 76px; border-radius: 50%; border: 1px solid var(--line); object-fit: cover; }
+.avatar { width: 100%; max-width: 280px; aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); object-fit: cover; }
 .about-id .name { font-family: var(--display); font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
 .about-body { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 .about-body ul { display: flex; flex-direction: column; gap: 10px; }
@@ -251,6 +271,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   <nav aria-label="Розділи">
     <a href="#program">Програма</a>
     <a href="#proof">Цифри</a>
+    <a href="#method">Демо</a>
     <a href="#about">Ведучий</a>
     <a href="#faq">Питання</a>
   </nav>
@@ -274,7 +295,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
   <figure class="term" aria-label="Звіт прогону тестів наприкінці воркшопу">
     <div class="term-head"><span>npx playwright test</span><span>кінець воркшопу</span></div>
-    <div class="term-body">
+    <div class="term-body run">
 <p class="dim">Running 10 tests using 4 workers</p>
 <p> </p>
 <p><span class="ok">  ✓</span>  setup › авторизація збережена</p>
@@ -428,7 +449,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   <div class="about">
     <div class="about-id">
       <div class="who-row">
-        <img class="avatar" src="assets/ihor-solopii-avatar.jpg" alt="" width="240" height="240" loading="lazy">
+        <img class="avatar" src="assets/ihor-portrait.jpg" alt="Ігор Солопій" width="280" height="280" loading="lazy">
         <div>
           <p class="name">Ігор Солопій</p>
           <p class="muted">Senior QA Engineer, Відень</p>
@@ -496,7 +517,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     <div><dt>На чому</dt><dd>Ваш продукт і ваш репозиторій</dd></div>
     <div><dt>До воркшопу</dt><dd>Дзвінок 45 хв і чеклист підготовки</dd></div>
     <div><dt>Після</dt><dd>Дві зустрічі по годині: рев'ю ваших PR</dd></div>
-    <div><dt>Дати й вартість</dt><dd>Узгоджуємо з командою</dd></div>
+    <div><dt>Дати й вартість</dt><dd>Individual — від $250 · команда — від $2 400</dd></div>
   </dl>
 </section>
 
@@ -557,6 +578,21 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 </div>
 
+<script>
+(function () {
+  // Hero terminal: play the run animation when it scrolls into view (once)
+  var heroBody = document.querySelector('.term-body.run');
+  if (heroBody && 'IntersectionObserver' in window) {
+    var seen = false;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && !seen) { seen = true; heroBody.classList.add('play'); io.disconnect(); }
+      });
+    }, { threshold: 0.4 });
+    io.observe(heroBody);
+  }
+})();
+</script>
 <script>
 (function () {
   var btn = document.getElementById('demoBtn');
