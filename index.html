@@ -8,6 +8,10 @@
 <meta property="og:title" content="Playwright-проєкт за 4 години — воркшоп для ручних QA">
 <meta property="og:description" content="Воркшоп для ручних QA: Playwright-проєкт з нуля за 4 години за допомогою скілів Claude Code. API-контрактні та E2E-тести на вашому продукті.">
 <meta property="og:url" content="https://igorsolop0.github.io/playwright-workshop/">
+<meta property="og:image" content="https://igorsolop0.github.io/playwright-workshop/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://igorsolop0.github.io/playwright-workshop/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B7A53'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -180,13 +184,18 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 .about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; }
 .about-id { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.portrait { display: block; width: 100%; max-width: 340px; height: auto; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 14px; }
 .about-id .name { font-family: var(--display); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
-.about-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.about-body { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 .about-body ul { display: flex; flex-direction: column; gap: 10px; }
 .about-body li { padding-left: 20px; position: relative; }
 .about-body li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 8px; height: 2px; background: var(--accent); }
 .links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--mono); font-size: 0.88rem; }
 .links a { color: var(--accent); overflow-wrap: anywhere; }
+.about-more { display: flex; flex-direction: column; gap: 40px; margin-top: 48px; }
+.about-more .method-copy { max-width: 46em; }
+.quote { font-family: var(--display); font-weight: 500; font-size: clamp(1.15rem, 2.2vw, 1.5rem); line-height: 1.35; max-width: 30em; text-wrap: balance; }
+.quote em { font-style: normal; color: var(--accent); }
 
 .terms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
 .terms div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -344,7 +353,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     <li><span class="time">0:00 – 0:15</span><div><h3>Навіщо і що вийде</h3></div><p class="res">Готовий проєкт на екрані, один прогін, звіт.</p></li>
     <li><span class="time">0:15 – 1:15</span><div><h3>Розгортання</h3><p class="skill">pw-project-bootstrap</p></div><p class="res">Скіл ставить питання про ваш проєкт і збирає конфіг, авторизацію, типи зі Swagger. Перший зелений тест.</p></li>
     <li><span class="time">1:15 – 2:30</span><div><h3>API contract тести</h3><p class="skill">qa-shift-left → api-contract-writer</p></div><p class="res">Спочатку список сценаріїв, який ви затверджуєте. Потім код. Шість тестів на два ендпоінти.</p></li>
-    <li><span class="time">2:40 – 3:30</span><div><h3>E2E: API-сценарій і браузер</h3><p class="skill">pw-pom-generator</p></div><p class="res">Правило «200 ще не означає, що збереглося». Два тести в браузері.</p></li>
+    <li><span class="time">2:40 – 3:30</span><div><h3>E2E: API-сценарій і браузер</h3><p class="skill">api-contract-writer, e2e-writer</p></div><p class="res">Правило «200 ще не означає, що збереглося». Два тести в браузері.</p></li>
     <li><span class="time">3:30 – 3:50</span><div><h3>Чесність тестів</h3><p class="skill">api-contract-reviewer, pw-test-review</p></div><p class="res">Рев'ю власних тестів і вправа «зламай тест».</p></li>
     <li><span class="time">3:50 – 4:00</span><div><h3>CI і план на два тижні</h3></div><p class="res">Ручний запуск у CI. Який домен покриваєте далі.</p></li>
   </ol>
@@ -411,9 +420,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 <section class="band" id="about">
   <div class="band-head">
     <p class="label">Ведучий</p>
+    <h2>Я тестую так щодня, на робочих тікетах</h2>
+    <p class="lead">Скіли з воркшопу не навчальний приклад. Ними я закриваю тікети на iGaming-продукті: понад 60 робочих сесій із Claude Code в одному репозиторії за три тижні.</p>
   </div>
   <div class="about">
     <div class="about-id">
+      <img class="portrait" src="assets/ihor-solopii.jpg" alt="Ігор Солопій" width="800" height="1215" loading="lazy">
       <p class="name">Ігор Солопій</p>
       <p class="muted">Senior QA Engineer, Відень</p>
       <p class="links">
@@ -429,7 +441,41 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
         <li>Пише скіли для Claude Code, якими користуються на воркшопі. Вони відкриті: <a href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">qa-claude-skills</a>.</li>
         <li>Автор Burger-методу тест-дизайну, на якому побудований крок зі сценаріями.</li>
       </ul>
+      <div class="method-copy">
+        <h3>Як я тестую тікет</h3>
+        <ol>
+          <li><b>Спершу контекст.</b> До першого тікета AI отримує репозиторій, документацію і словник продукту. Без цього він вгадує.</li>
+          <li><b>Тест-дизайн.</b> Що може зробити користувач: клікнути, затиснути, змінити розмір екрана, втратити мережу, перезавантажити сесію, ввести невалідні дані. Плюс стани кнопок.</li>
+          <li><b>Список сценаріїв читаю сам.</b> Викреслюю і додаю. Тільки після цього AI виконує їх у браузері та через API і збирає докази.</li>
+          <li><b>Перевіряю руками.</b> Позитивний шлях і один негативний проходжу сам.</li>
+          <li><b>Фіксую.</b> Тест-кейси йдуть у систему тест-менеджменту, автотести в PR.</li>
+        </ol>
+      </div>
     </div>
+  </div>
+
+  <div class="about-more">
+    <div class="fit">
+      <div class="yes">
+        <h3>Де AI сильніший за мене</h3>
+        <ul>
+          <li>Негативні сценарії. Людина втомлюється і пропускає, він ні.</li>
+          <li>Порівняння шарів: бекенд віддає поле, а на екрані його немає.</li>
+          <li>Рутина: дані для тесту, запити, знімки екрана, чернетка звіту.</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h3>Де я його ловлю</h3>
+        <ul>
+          <li>Агент клікнув через JavaScript по вимкненій кнопці й записав баг, якого не існує. Користувач так клікнути не може.</li>
+          <li>Тест на бонус перевіряв кількість кроків. Суми могли зберегтися нулями, і він лишився б зеленим.</li>
+          <li>Повідомлення «Збережено» на екрані, хоча запит пішов без зміненого поля. Видно лише тоді, коли звіряєш екран із запитом.</li>
+          <li>Агент без людини у моєму аудиті отримав 3 з 7. Той самий агент із тестувальником поруч: 6 з 7.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="quote">AI не знає, що кнопка виходу не має бути зеленою, а клік по «Увійти» не має закривати вікно. <em>Це знає людина, яка роками користується застосунками.</em> Тому воркшоп для тестувальників, а не замість них.</p>
   </div>
 </section>
 
