@@ -93,12 +93,58 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 /* top bar */
 .top {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: 12px 24px; padding-block: 20px;
+  gap: 12px 24px; padding-block: 14px 20px;
+}
+.top.stuck {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  margin-inline: -20px; padding-inline: 20px;
 }
 .top .who { font-weight: 700; }
 .top nav { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 0.95rem; }
-.top nav a { text-decoration: none; color: var(--muted); }
+.top nav a { text-decoration: none; color: var(--muted); position: relative; padding-block: 4px; }
 .top nav a:hover { color: var(--ink); }
+.top nav a.active { color: var(--accent); }
+.top nav a.active::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+}
+@media (max-width: 860px) {
+  .top.stuck { flex-direction: column; align-items: stretch; gap: 8px; padding-block: 10px 12px; }
+  .top.stuck nav { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .top.stuck nav::-webkit-scrollbar { display: none; }
+  .top.stuck nav a { flex: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; font-size: 0.9rem; }
+  .top.stuck nav a.active { border-color: var(--accent); background: var(--accent-soft); }
+  .top.stuck nav a.active::after { display: none; }
+}
+
+/* reading progress */
+.progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 100%;
+  background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
+  z-index: 60; pointer-events: none;
+}
+
+/* back-to-top */
+.to-top {
+  position: fixed; right: 18px; bottom: 18px; z-index: 55;
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 700 1.1rem/1 var(--mono); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+.to-top.show { opacity: 1; visibility: visible; transform: none; }
+
+/* section reveal */
+@media (prefers-reduced-motion: no-preference) {
+  .band { opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .band.visible { opacity: 1; transform: none; }
+}
 
 /* hero */
 .hero {
@@ -264,9 +310,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 </head>
 <body>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
+
 <div class="wrap">
 
-<header class="top">
+<header class="top" id="topbar">
   <span class="who">Ігор Солопій · QA</span>
   <nav aria-label="Розділи">
     <a href="#program">Програма</a>
@@ -578,7 +626,122 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 </div>
 
+<button class="to-top" id="toTop" type="button" aria-label="Догори">↑</button>
+
 <script>
+(function () {
+  // Sticky header + scroll-spy + progress bar + back-to-top
+  var topbar = document.getElementById('topbar');
+  var progress = document.getElementById('progress');
+  var toTop = document.getElementById('toTop');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.top nav a'));
+  var sections = navLinks.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function onScroll() {
+    var y = window.scrollY;
+    topbar.classList.toggle('stuck', y > 90);
+    toTop.classList.toggle('show', y > 600);
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = 'scaleX(' + (h > 0 ? Math.min(y / h, 1) : 0) + ')';
+    // scroll-spy: find the section whose top is closest above the middle of the viewport
+    var active = -1;
+    var mid = y + window.innerHeight * 0.4;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= mid) active = i;
+    }
+    navLinks.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();
+
+// Keep the active nav pill visible in the horizontal scroller on mobile
+(function () {
+  var nav = document.querySelector('.top nav');
+  if (!nav) return;
+  document.querySelectorAll('.top nav a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      // let the anchor jump first, then bring the pill into view
+      setTimeout(function () {
+        var r = a.getBoundingClientRect();
+        if (r.left < 8 || r.right > window.innerWidth - 8) {
+          a.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }, 250);
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  // Section reveal on scroll (subtle, once) — IntersectionObserver with scroll fallback
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
+  var bands = Array.prototype.slice.call(document.querySelectorAll('.band'));
+  if (reduce) { bands.forEach(function (b) { b.classList.add('visible'); }); return; }
+
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    return r.top < window.innerHeight * 0.88 && r.bottom > 0;
+  }
+  function check() {
+    bands = bands.filter(function (b) {
+      if (inView(b)) { b.classList.add('visible'); return false; }
+      return true;
+    });
+    if (!bands.length) window.removeEventListener('scroll', check);
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.05 });
+  bands.forEach(function (b) { io.observe(b); });
+  window.addEventListener('scroll', check, { passive: true });
+  check();
+})();
+</script>
+<script>
+(function () {
+  // Proof numbers count up when the section enters view
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dts = document.querySelectorAll('.proof dt');
+  if (!dts.length) return;
+  function parseNum(s) {
+    var m = s.match(/^(\d+)\s*(?:→|\u2192)\s*(\d+)$/);
+    if (m) return { from: +m[1], to: +m[2], range: true };
+    var n = s.match(/^(\d+)$/);
+    if (n) return { from: 0, to: +n[1], range: false };
+    return null;
+  }
+  function animate(dt, data) {
+    var dur = 900, start = null;
+    function fmt(v) { return data.range ? v + ' → ' + data.to : String(v); }
+    function step(ts) {
+      if (!start) start = ts;
+      var t = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - t, 3);
+      dt.textContent = fmt(Math.round(data.from + (data.to - data.from) * eased));
+      if (t < 1) requestAnimationFrame(step);
+      else dt.textContent = data.range ? data.from + ' → ' + data.to : String(data.to);
+    }
+    requestAnimationFrame(step);
+  }
+  function arm() {
+    dts.forEach(function (dt) {
+      var data = parseNum(dt.textContent.trim());
+      if (!data || reduce) return;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { io.disconnect(); animate(dt, data); }
+        });
+      }, { threshold: 0.6 });
+      io.observe(dt);
+    });
+  }
+  arm();
+})();
+</script>
 (function () {
   // Hero terminal: play the run animation when it scrolls into view (once)
   var heroBody = document.querySelector('.term-body.run');
