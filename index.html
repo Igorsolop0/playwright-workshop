@@ -278,12 +278,23 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 
 /* format and price */
 .deal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; align-items: start; }
-.prices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.prices > div { border-radius: 10px; padding: 22px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border: 1px solid var(--line); background: var(--surface); }
-.prices > div.team { background: var(--term-bg); border-color: var(--term-bg); color: var(--term-fg); }
-.prices .who { font: 500 0.78rem var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
-.prices .team .who { color: var(--term-pass); }
-.prices .num { font-size: clamp(1.25rem, 5.4vw, 1.9rem); color: inherit; }
+.pricing { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.calc { background: var(--term-bg); color: var(--term-fg); border: 1px solid var(--term-line); border-radius: 10px; padding: 22px 20px; display: flex; flex-direction: column; gap: 18px; }
+.calc .who { font: 500 0.78rem var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--term-pass); }
+.calc-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--term-line); background: transparent; color: var(--term-fg); font: 600 1.3rem var(--mono); cursor: pointer; }
+.stepper button:hover:not(:disabled) { border-color: var(--term-pass); color: var(--term-pass); }
+.stepper button:disabled { opacity: 0.35; cursor: default; }
+.stepper output { min-width: 2ch; text-align: center; font: 700 1.3rem var(--display); font-variant-numeric: tabular-nums; }
+.calc-opt { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; font-weight: 600; }
+.calc-opt input { width: 22px; height: 22px; flex: none; accent-color: var(--term-pass); cursor: pointer; }
+.calc-opt .add { margin-left: auto; font: 500 0.9rem var(--mono); color: var(--term-dim); white-space: nowrap; }
+.calc-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 18px; border-top: 1px solid var(--term-line); }
+.calc-total .num { font-size: clamp(1.9rem, 8vw, 2.5rem); color: var(--term-pass); }
+.calc-total .per { font: 500 0.82rem var(--mono); color: var(--term-dim); }
+.solo { font-size: 0.95rem; color: var(--muted); }
+.solo b { color: var(--ink); }
 .terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
 .terms div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .terms dt { font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
@@ -660,14 +671,29 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <h2>Як проходить воркшоп</h2>
   </div>
   <div class="deal">
-    <div class="prices">
-      <div><span class="who">Individual</span><span class="num">від $250</span></div>
-      <div class="team"><span class="who">Команда</span><span class="num">від $2 400</span></div>
+    <div class="pricing">
+      <div class="calc">
+        <span class="who">Воркшоп для команди</span>
+        <div class="calc-row">
+          <span id="calcLabel">Учасників</span>
+          <div class="stepper" role="group" aria-labelledby="calcLabel">
+            <button type="button" id="calcMinus" aria-label="Менше учасників" disabled>−</button>
+            <output id="calcN" aria-live="polite">4</output>
+            <button type="button" id="calcPlus" aria-label="Більше учасників">+</button>
+          </div>
+        </div>
+        <label class="calc-opt"><input type="checkbox" id="calcOwn"><span>На вашому продукті</span><span class="add">+$400</span></label>
+        <div class="calc-total">
+          <span class="num" id="calcSum">$900</span>
+          <span class="per">$225 за учасника</span>
+        </div>
+      </div>
+      <p class="solo"><b>Ви один?</b> Місце у відкритій групі: $250.</p>
     </div>
     <dl class="terms">
       <div><dt>Тривалість</dt><dd>4 години, одна перерва</dd></div>
       <div><dt>Група</dt><dd>4–8 учасників, парами</dd></div>
-      <div><dt>На чому</dt><dd>Ваш продукт і репозиторій</dd></div>
+      <div><dt>На чому</dt><dd>Тренувальний застосунок або ваш продукт</dd></div>
       <div><dt>До воркшопу</dt><dd>Дзвінок 45 хв і чеклист</dd></div>
       <div><dt>Після</dt><dd>Дві зустрічі: рев'ю ваших PR</dd></div>
       <div><dt>Дати</dt><dd>Узгоджуємо з командою</dd></div>
@@ -733,7 +759,7 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 </div>
 
 <div class="cta-bar" id="ctaBar">
-  <p><b>Воркшоп від $250</b>4 години, наживо</p>
+  <p><b>Команда від $900</b>4 години, наживо</p>
   <a class="btn sm" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати</a>
 </div>
 
@@ -789,6 +815,27 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     }, { threshold: 0.6 });
     io.observe(el);
   });
+})();
+
+(function () {
+  // Price calculator: $225 per participant, 4 to 8 people, flat extra for work on the client's product
+  var PER = 225, EXTRA = 400, MIN = 4, MAX = 8, n = MIN;
+  var minus = document.getElementById('calcMinus');
+  var plus = document.getElementById('calcPlus');
+  var out = document.getElementById('calcN');
+  var own = document.getElementById('calcOwn');
+  var sum = document.getElementById('calcSum');
+  function render() {
+    var total = n * PER + (own.checked ? EXTRA : 0);
+    out.textContent = n;
+    sum.textContent = '$' + String(total).replace(/\B(?=(\d{3})+$)/, '\u00a0');
+    minus.disabled = n <= MIN;
+    plus.disabled = n >= MAX;
+  }
+  minus.addEventListener('click', function () { if (n > MIN) { n--; render(); } });
+  plus.addEventListener('click', function () { if (n < MAX) { n++; render(); } });
+  own.addEventListener('change', render);
+  render();
 })();
 
 (function () {
