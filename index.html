@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Воркшоп для ручних QA: Playwright-проєкт з нуля за 4 години за допомогою скілів Claude Code. API-контрактні та E2E-тести на вашому продукті.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Playwright-проєкт за 4 години — воркшоп для ручних QA">
@@ -19,7 +19,7 @@
 <title>Playwright за 4 години</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
 <style>
-/* Layout: one column of wide bands; the hero pairs the promise with a test-run report, and the run report motif returns once, as the interactive "break the test" demo. */
+/* Layout: one column of bands. Each band leads with a picture of the thing (run report, timeline bar, step flow, mini charts) and keeps prose to one line per item, so the page stays short on a phone. */
 :root {
   --bg: #F3F6F4;
   --surface: #FFFFFF;
@@ -39,6 +39,7 @@
   --display: 'Unbounded', 'Arial Black', Arial, sans-serif;
   --body: 'Onest', 'Segoe UI', Arial, sans-serif;
   --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --bar-h: 53px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -56,94 +57,70 @@
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
+  margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--body);
   font-size: 17px;
   line-height: 1.55;
   padding-inline: 20px;
+  overflow-x: hidden;
 }
 .wrap { max-width: 1120px; margin-inline: auto; }
 h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
 h1, h2 { font-family: var(--display); text-wrap: balance; letter-spacing: -0.01em; }
 h1 { font-size: clamp(2.1rem, 6vw, 4rem); line-height: 1.08; font-weight: 700; }
-h2 { font-size: clamp(1.5rem, 3.4vw, 2.3rem); line-height: 1.15; font-weight: 500; }
-h3 { font-size: 1.15rem; line-height: 1.3; font-weight: 700; }
+h2 { font-size: clamp(1.45rem, 3.4vw, 2.3rem); line-height: 1.15; font-weight: 500; }
+h3 { font-size: 1.1rem; line-height: 1.3; font-weight: 700; }
 a { color: inherit; }
 a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 .label {
   font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--accent); font-weight: 500;
 }
-.lead { font-size: 1.2rem; color: var(--muted); max-width: 34em; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 34em; }
 .muted { color: var(--muted); }
+.num { font-family: var(--display); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   font: 600 1rem var(--body); text-decoration: none; cursor: pointer;
   padding: 14px 24px; border-radius: 6px; border: 2px solid var(--accent);
-  background: var(--accent); color: var(--accent-ink);
+  background: var(--accent); color: var(--accent-ink); min-height: 48px;
 }
 .btn:hover { filter: brightness(1.08); }
 .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn.ghost:hover { border-color: var(--accent); filter: none; }
+.btn.sm { padding: 8px 16px; min-height: 40px; font-size: 0.92rem; }
 
-/* top bar */
+/* top bar: always sticky, never changes height, every link fits without sideways scrolling */
 .top {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: 12px 24px; padding-block: 14px 20px;
-}
-.top.stuck {
   position: sticky; top: 0; z-index: 50;
-  background: color-mix(in srgb, var(--bg) 86%, transparent);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
   margin-inline: -20px; padding-inline: 20px;
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
 }
-.top .who { font-weight: 700; }
-.top nav { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 0.95rem; }
-.top nav a { text-decoration: none; color: var(--muted); position: relative; padding-block: 4px; }
+.top.scrolled { border-bottom-color: var(--line); }
+.top-in { max-width: 1120px; margin-inline: auto; display: flex; align-items: center; gap: 24px; min-height: var(--bar-h); }
+.top .who { font-weight: 700; text-decoration: none; white-space: nowrap; }
+.top nav { display: flex; gap: 22px; margin-left: auto; font-size: 0.95rem; }
+.top nav a { text-decoration: none; color: var(--muted); position: relative; padding-block: 14px; white-space: nowrap; }
 .top nav a:hover { color: var(--ink); }
 .top nav a.active { color: var(--accent); }
 .top nav a.active::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+  content: ""; position: absolute; left: 0; right: 0; bottom: 8px; height: 2px;
   background: var(--accent); border-radius: 2px;
 }
-@media (max-width: 860px) {
-  .top.stuck { flex-direction: column; align-items: stretch; gap: 8px; padding-block: 10px 12px; }
-  .top.stuck nav { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
-  .top.stuck nav::-webkit-scrollbar { display: none; }
-  .top.stuck nav a { flex: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; font-size: 0.9rem; }
-  .top.stuck nav a.active { border-color: var(--accent); background: var(--accent-soft); }
-  .top.stuck nav a.active::after { display: none; }
-}
-
-/* reading progress */
 .progress {
-  position: fixed; top: 0; left: 0; height: 3px; width: 100%;
-  background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
-  z-index: 60; pointer-events: none;
-}
-
-/* back-to-top */
-.to-top {
-  position: fixed; right: 18px; bottom: 18px; z-index: 55;
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-  font: 700 1.1rem/1 var(--mono); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; visibility: hidden; transform: translateY(8px);
-  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-}
-.to-top.show { opacity: 1; visibility: visible; transform: none; }
-
-/* section reveal */
-@media (prefers-reduced-motion: no-preference) {
-  .band { opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }
-  .band.visible { opacity: 1; transform: none; }
+  position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%;
+  background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none;
 }
 
 /* hero */
@@ -154,7 +131,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .hero-copy { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 .hero h1 em { font-style: normal; color: var(--accent); }
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
-.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 0.95rem; color: var(--muted); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.92rem; }
+.facts span { border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; color: var(--muted); white-space: nowrap; }
 .facts b { color: var(--ink); font-weight: 600; }
 
 .term {
@@ -166,118 +144,159 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   display: flex; justify-content: space-between; gap: 12px;
   padding: 10px 18px; border-bottom: 1px solid var(--term-line); color: var(--term-dim);
 }
-.term-body { padding: 16px 18px 20px; overflow-x: auto; }
+.term-body { padding: 16px 18px 20px; }
 .term-body p { white-space: pre; }
 .term .ok { color: var(--term-pass); }
 .term .bad { color: var(--term-fail); }
 .term .dim { color: var(--term-dim); }
-
-/* hero terminal run animation */
 @media (prefers-reduced-motion: no-preference) {
-  .term-body.run p { opacity: 0; animation: termLine 0.4s ease forwards; }
-  .term-body.run p:nth-child(1) { animation-delay: 0.3s; }
-  .term-body.run p:nth-child(2) { animation-delay: 0.6s; }
-  .term-body.run p:nth-child(3) { animation-delay: 1.0s; }
-  .term-body.run p:nth-child(4) { animation-delay: 1.3s; }
-  .term-body.run p:nth-child(5) { animation-delay: 1.6s; }
-  .term-body.run p:nth-child(6) { animation-delay: 1.9s; }
-  .term-body.run p:nth-child(7) { animation-delay: 2.2s; }
-  .term-body.run p:nth-child(8) { animation-delay: 2.5s; }
-  .term-body.run p:nth-child(9) { animation-delay: 2.8s; }
-  .term-body.run p:nth-child(10) { animation-delay: 3.1s; }
-  .term-body.run p:nth-child(11) { animation-delay: 3.4s; }
-  .term-body.run p:nth-child(12) { animation-delay: 3.7s; }
-  .term-body.run p:nth-child(13) { animation-delay: 4.2s; }
-  .term-body.run p:nth-child(14) { animation-delay: 4.6s; }
+  .term-body.run p { animation: termLine 0.35s ease both; animation-delay: calc(var(--i) * 0.28s + 0.3s); }
   @keyframes termLine { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 }
 
 /* bands */
 .band { padding-block: 72px; border-top: 1px solid var(--line); }
-.band-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; max-width: 46em; }
+.band-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; max-width: 46em; }
 
-.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
-.cols3 li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.cols3 p { color: var(--muted); }
+/* problem: three numbered pains */
+.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.pains li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-content: start; }
+.pains .n { grid-row: span 2; font: 700 1.5rem/1.15 var(--mono); color: var(--fail); }
+.pains p { color: var(--muted); font-size: 0.97rem; }
 
-.fit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+/* fit: chips instead of sentences */
+.fit { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
 .fit > div {
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-  padding: 28px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
+  padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0;
 }
-.fit ul { display: flex; flex-direction: column; gap: 10px; }
-.fit li { padding-left: 26px; position: relative; }
-.fit li::before { position: absolute; left: 0; font-family: var(--mono); font-weight: 700; }
-.fit .yes li::before { content: "✓"; color: var(--accent); }
-.fit .no li::before { content: "✘"; color: var(--fail); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips li { border-radius: 999px; padding: 6px 12px 6px 30px; position: relative; font-size: 0.94rem; line-height: 1.35; }
+.chips li::before { position: absolute; left: 11px; font-family: var(--mono); font-weight: 700; }
+.yes .chips li { background: var(--accent-soft); }
+.yes .chips li::before { content: "✓"; color: var(--accent); }
+.no .chips li { border: 1px solid var(--line); color: var(--muted); }
+.no .chips li::before { content: "✘"; color: var(--fail); }
 
+/* outcome tiles */
 .out { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
-.out li { padding: 26px 22px; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid var(--line); min-width: 0; }
+.out li { padding: 24px 20px; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid var(--line); min-width: 0; }
 .out li:first-child { border-left: 0; }
-.out .n { font-family: var(--display); font-size: 2.6rem; line-height: 1; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-.out .t { font-weight: 600; }
-.out .d { color: var(--muted); font-size: 0.95rem; }
+.out .num { font-size: 2.6rem; }
+.out .t { font-weight: 600; line-height: 1.3; }
+.out .d { color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
 
-.plan { display: flex; flex-direction: column; }
+/* programme: a four-hour bar drawn to scale, then one line per block */
+.timebar { display: flex; gap: 3px; height: 44px; }
+.timebar span {
+  display: flex; align-items: center; justify-content: center; min-width: 0;
+  background: var(--accent); color: var(--accent-ink); border-radius: 4px;
+  font: 700 0.8rem/1 var(--mono);
+}
+.timebar span:nth-child(even) { opacity: 0.74; }
+.timebar .brk { background: repeating-linear-gradient(135deg, var(--line) 0 4px, transparent 4px 8px); opacity: 1; }
+.timeaxis { display: flex; justify-content: space-between; margin-top: 6px; font: 0.76rem var(--mono); color: var(--muted); }
+.plan { display: flex; flex-direction: column; margin-top: 20px; }
 .plan li {
-  display: grid; grid-template-columns: 9.5em minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px 28px; padding-block: 20px; border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 30px 7.5em minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 4px 18px; padding-block: 16px; border-top: 1px solid var(--line); align-items: start;
 }
 .plan li:last-child { border-bottom: 1px solid var(--line); }
-.plan .time { font-family: var(--mono); font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; }
-.plan .res { color: var(--muted); }
-.plan .skill { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+.plan .k { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 700 0.82rem/26px var(--mono); text-align: center; }
+.plan .time { font-family: var(--mono); font-size: 0.86rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; white-space: nowrap; }
+.plan .res { color: var(--muted); font-size: 0.97rem; }
+.plan .skill { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); overflow-wrap: anywhere; }
 
+/* method: four-step flow beside the breakable test */
 .method { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
-.method-copy { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.method-copy ol { display: flex; flex-direction: column; gap: 12px; counter-reset: step; }
-.method-copy ol li { padding-left: 38px; position: relative; counter-increment: step; }
-.method-copy ol li::before {
+.flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; counter-reset: step; }
+.flow li {
+  counter-increment: step; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative;
+}
+.flow li::before { content: counter(step, decimal-leading-zero); font: 700 0.8rem var(--mono); color: var(--accent); }
+.flow li.red::before { color: var(--fail); }
+.flow p { color: var(--muted); font-size: 0.93rem; line-height: 1.45; }
+.demo { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.demo .btn { align-self: flex-start; }
+.demo-note { font-size: 0.93rem; color: var(--muted); }
+
+/* proof: numbers with a small chart each */
+.proof { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.proof article { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.stat { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; align-items: end; }
+.stat .num { font-size: 1.7rem; }
+.stat .cap { grid-column: 1 / -1; color: var(--muted); font-size: 0.93rem; line-height: 1.4; }
+.spark { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+.spark i { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; opacity: 0.55; }
+.spark i:last-child { opacity: 1; }
+.meter { height: 10px; border-radius: 5px; background: var(--accent-soft); overflow: hidden; align-self: center; }
+.meter i { display: block; height: 100%; background: var(--accent); border-radius: 5px; }
+.dots { display: flex; gap: 5px; align-self: center; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); }
+.dots i.off { background: transparent; border: 2px solid var(--line); }
+.dots.bad i:not(.off) { background: var(--fail); }
+.stat .num.bad { color: var(--fail); }
+.source { font-size: 0.88rem; color: var(--muted); margin-top: 18px; max-width: 60em; }
+
+/* instructor */
+.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; align-items: start; }
+.about-id { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.who-row { display: flex; flex-direction: column; gap: 12px; }
+.who-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.avatar { width: 100%; max-width: 280px; height: auto; aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); object-fit: cover; }
+.about-id .name { font-family: var(--display); font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 20px; font-family: var(--mono); font-size: 0.86rem; }
+.links a { color: var(--accent); overflow-wrap: anywhere; padding-block: 4px; }
+.about-body { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.tiles li { padding: 16px; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid var(--line); min-width: 0; }
+.tiles li:first-child { border-left: 0; }
+.tiles .num { font-size: 1.6rem; }
+.tiles span:last-child { color: var(--muted); font-size: 0.88rem; line-height: 1.35; }
+.notes { display: flex; flex-direction: column; gap: 8px; }
+.notes li { padding-left: 20px; position: relative; }
+.notes li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 8px; height: 2px; background: var(--accent); }
+.steps { display: flex; flex-direction: column; gap: 10px; counter-reset: step; margin-top: 12px; }
+.steps li { padding-left: 38px; position: relative; counter-increment: step; color: var(--muted); }
+.steps li b { color: var(--ink); }
+.steps li::before {
   content: counter(step); position: absolute; left: 0; top: 1px;
   width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
   font: 700 0.85rem/26px var(--mono); text-align: center;
 }
-.demo { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.demo .btn { align-self: flex-start; }
-.demo-note { font-size: 0.95rem; color: var(--muted); }
-
-.proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-.proof article { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.proof dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 18px; align-items: baseline; }
-.proof dt { font-family: var(--display); font-weight: 700; font-size: 1.5rem; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.proof dd { color: var(--muted); }
-.source { font-size: 0.9rem; color: var(--muted); margin-top: 20px; max-width: 60em; }
-
-.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; align-items: start; }
-.about-id { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.who-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
-.who-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.avatar { width: 100%; max-width: 280px; aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); object-fit: cover; }
-.about-id .name { font-family: var(--display); font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
-.about-body { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
-.about-body ul { display: flex; flex-direction: column; gap: 10px; }
-.about-body li { padding-left: 20px; position: relative; }
-.about-body li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 8px; height: 2px; background: var(--accent); }
-.links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--mono); font-size: 0.88rem; }
-.links a { color: var(--accent); overflow-wrap: anywhere; }
-.about-more { display: flex; flex-direction: column; gap: 40px; margin-top: 48px; }
-.about-more .method-copy { max-width: 46em; }
-.quote { font-family: var(--display); font-weight: 500; font-size: clamp(1.15rem, 2.2vw, 1.5rem); line-height: 1.35; max-width: 30em; text-wrap: balance; }
+.about-more { display: flex; flex-direction: column; gap: 32px; margin-top: 40px; }
+.versus { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.versus > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.versus ul { display: flex; flex-direction: column; gap: 10px; }
+.versus li { padding-left: 26px; position: relative; font-size: 0.97rem; }
+.versus li::before { position: absolute; left: 0; font-family: var(--mono); font-weight: 700; }
+.versus .yes li::before { content: "✓"; color: var(--accent); }
+.versus .no li::before { content: "✘"; color: var(--fail); }
+.quote { font-family: var(--display); font-weight: 500; font-size: clamp(1.05rem, 2.2vw, 1.5rem); line-height: 1.35; max-width: 30em; text-wrap: balance; }
 .quote em { font-style: normal; color: var(--accent); }
 
-.terms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
+/* format and price */
+.deal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; align-items: start; }
+.prices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.prices > div { border-radius: 10px; padding: 22px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border: 1px solid var(--line); background: var(--surface); }
+.prices > div.team { background: var(--term-bg); border-color: var(--term-bg); color: var(--term-fg); }
+.prices .who { font: 500 0.78rem var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.prices .team .who { color: var(--term-pass); }
+.prices .num { font-size: clamp(1.25rem, 5.4vw, 1.9rem); color: inherit; }
+.terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
 .terms div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.terms dt { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.terms dd { font-weight: 600; }
+.terms dt { font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.terms dd { font-weight: 600; line-height: 1.35; }
 
 .faq { display: flex; flex-direction: column; max-width: 52em; }
-.faq details { border-top: 1px solid var(--line); padding-block: 18px; }
+.faq details { border-top: 1px solid var(--line); }
 .faq details:last-child { border-bottom: 1px solid var(--line); }
-.faq summary { cursor: pointer; font-weight: 600; font-size: 1.08rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 1.04rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; padding-block: 16px; }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after { content: "+"; font-family: var(--mono); color: var(--accent); flex: none; }
 .faq details[open] summary::after { content: "−"; }
-.faq details p { color: var(--muted); margin-top: 10px; max-width: 46em; }
+.faq details p { color: var(--muted); margin: -4px 0 16px; max-width: 46em; }
 
 .final {
   background: var(--term-bg); color: var(--term-fg); border-radius: 14px;
@@ -290,49 +309,101 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .final .btn.ghost { background: transparent; color: var(--term-fg); border-color: var(--term-line); }
 .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 0 40px; font-size: 0.9rem; color: var(--muted); }
 
+/* phone-only contact bar */
+.cta-bar { display: none; }
+.byline { display: none; }
+
 @media (max-width: 860px) {
-  .hero, .method, .about { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .hero { padding-block: 24px 56px; }
-  .cols3, .fit, .proof { grid-template-columns: minmax(0, 1fr); }
+  body { font-size: 16px; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .top .who, .top .btn { display: none; }
+  .top nav { flex: 1; margin: 0; gap: 0; justify-content: space-between; font-size: 0.86rem; }
+  .top nav a { padding: 16px 3px; }
+  .top nav a.active::after { bottom: 9px; left: 3px; right: 3px; }
+  .byline { display: block; font-weight: 700; }
+
+  .hero, .method, .about, .deal { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .hero { padding-block: 20px 44px; }
+  .hero-copy { gap: 18px; }
+  .hero .cta-row .btn { flex: 1 1 auto; }
+  .hero .cta-row .btn.ghost { display: none; }
+  .band { padding-block: 44px; }
+  .band-head { margin-bottom: 22px; gap: 10px; }
+  .lead { font-size: 1.04rem; }
+
+  .pains { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .fit, .proof, .versus { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .fit > div, .proof article, .versus > div { padding: 18px; }
   .out { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .out li { padding: 16px 14px; }
   .out li:nth-child(odd) { border-left: 0; }
   .out li:nth-child(n+3) { border-top: 1px solid var(--line); }
-  .plan li { grid-template-columns: minmax(0, 1fr); }
-  .terms { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .band { padding-block: 52px; }
-  .final { padding: 40px 24px; }
+  .out .num { font-size: 2.1rem; }
+
+  .plan li { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 2px 12px; padding-block: 12px; }
+  .plan .time { grid-column: 3; grid-row: 1; padding-top: 4px; font-size: 0.78rem; }
+  .plan .what { display: contents; }
+  .plan .what h3 { grid-column: 2; grid-row: 1; }
+  .plan .skill { grid-column: 2 / -1; }
+  .plan .res { grid-column: 2 / -1; font-size: 0.92rem; }
+
+  .proof article { gap: 16px; }
+  .who-row { flex-direction: row; align-items: center; gap: 14px; }
+  .avatar { width: 84px; max-width: 84px; border-radius: 12px; }
+  .tiles li { padding: 12px 10px; }
+  .tiles .num { font-size: 1.25rem; }
+  .tiles span:last-child { font-size: 0.8rem; }
+  .about-more { margin-top: 28px; gap: 24px; }
+  .final { padding: 32px 22px; }
+  .final .cta-row { width: 100%; }
+  .final .btn { flex: 1 1 auto; }
+
+  .cta-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+    background: var(--surface); border-top: 1px solid var(--line);
+    transform: translateY(110%); transition: transform 0.25s ease;
+  }
+  .cta-bar.show { transform: none; }
+  .cta-bar p { font-size: 0.88rem; line-height: 1.3; color: var(--muted); }
+  .cta-bar b { color: var(--ink); display: block; font-size: 0.98rem; }
 }
-@media (max-width: 460px) {
-  .terms { grid-template-columns: minmax(0, 1fr); }
-  .term { font-size: 0.76rem; }
+@media (max-width: 400px) {
+  .term { font-size: 0.72rem; }
+  .term-head, .term-body { padding-inline: 14px; }
+  .top nav { font-size: 0.82rem; }
 }
 </style>
 </head>
-<body>
+<body id="top">
 
-<div class="progress" id="progress" aria-hidden="true"></div>
+<header class="top" id="topbar">
+  <div class="top-in">
+    <a class="who" href="#top">Ігор Солопій · QA</a>
+    <nav aria-label="Розділи">
+      <a href="#program">Програма</a>
+      <a href="#method">Демо</a>
+      <a href="#proof">Цифри</a>
+      <a href="#about">Ведучий</a>
+      <a href="#terms">Ціна</a>
+      <a href="#faq">Питання</a>
+    </nav>
+    <a class="btn sm" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати</a>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</header>
 
 <div class="wrap">
 
-<header class="top" id="topbar">
-  <span class="who">Ігор Солопій · QA</span>
-  <nav aria-label="Розділи">
-    <a href="#program">Програма</a>
-    <a href="#proof">Цифри</a>
-    <a href="#method">Демо</a>
-    <a href="#about">Ведучий</a>
-    <a href="#faq">Питання</a>
-  </nav>
-</header>
-
 <section class="hero">
   <div class="hero-copy">
+    <p class="byline">Ігор Солопій · QA</p>
     <p class="label">Воркшоп для manual QA</p>
     <h1>Playwright-проєкт за <em>4 години</em></h1>
-    <p class="lead">Для команд, де автоматизації немає і немає кому її писати. Приходите з ручним тестуванням, виходите з налаштованим проєктом, першими API- та E2E-тестами і прогоном у CI.</p>
+    <p class="lead">Для команд, де автоматизації немає і немає кому її писати. Приходите з ручним тестуванням, виходите з проєктом, першими API- та E2E-тестами і прогоном у CI.</p>
     <div class="cta-row">
       <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
-      <a class="btn ghost" href="#program">Подивитись програму</a>
+      <a class="btn ghost" href="#program">Програма</a>
     </div>
     <p class="facts">
       <span><b>Наживо</b>, 4 години</span>
@@ -341,23 +412,21 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     </p>
   </div>
 
-  <figure class="term" aria-label="Звіт прогону тестів наприкінці воркшопу">
+  <figure class="term" aria-label="Звіт прогону тестів наприкінці воркшопу: 10 тестів, усі пройшли">
     <div class="term-head"><span>npx playwright test</span><span>кінець воркшопу</span></div>
     <div class="term-body run">
-<p class="dim">Running 10 tests using 4 workers</p>
-<p> </p>
-<p><span class="ok">  ✓</span>  setup › авторизація збережена</p>
-<p><span class="ok">  ✓</span>  api-users › GET /users/me › 200, схема</p>
-<p><span class="ok">  ✓</span>  api-users › GET /users/me › 401 без токена</p>
-<p><span class="ok">  ✓</span>  api-users › PATCH /users/me › 422</p>
-<p><span class="ok">  ✓</span>  api-orders › POST /orders › 201, схема</p>
-<p><span class="ok">  ✓</span>  api-orders › POST /orders › 401</p>
-<p><span class="ok">  ✓</span>  api-orders › POST /orders › 422</p>
-<p><span class="ok">  ✓</span>  api-orders › створити → змінити → прочитати</p>
-<p><span class="ok">  ✓</span>  e2e › вхід і головний сценарій</p>
-<p><span class="ok">  ✓</span>  e2e › сценарій перед релізом</p>
-<p> </p>
-<p><span class="ok">  10 passed</span> <span class="dim">(41.2s)</span></p>
+<p class="dim" style="--i:0">Running 10 tests using 4 workers</p>
+<p style="--i:1"><span class="ok">  ✓</span>  setup › вхід збережено</p>
+<p style="--i:2"><span class="ok">  ✓</span>  api-users › GET /me › 200, схема</p>
+<p style="--i:3"><span class="ok">  ✓</span>  api-users › GET /me › 401</p>
+<p style="--i:4"><span class="ok">  ✓</span>  api-users › PATCH /me › 422</p>
+<p style="--i:5"><span class="ok">  ✓</span>  api-orders › POST › 201, схема</p>
+<p style="--i:6"><span class="ok">  ✓</span>  api-orders › POST › 401</p>
+<p style="--i:7"><span class="ok">  ✓</span>  api-orders › POST › 422</p>
+<p style="--i:8"><span class="ok">  ✓</span>  api-orders › створити → прочитати</p>
+<p style="--i:9"><span class="ok">  ✓</span>  e2e › вхід і головний сценарій</p>
+<p style="--i:10"><span class="ok">  ✓</span>  e2e › сценарій перед релізом</p>
+<p style="--i:12"><span class="ok">  10 passed</span> <span class="dim">(41.2s)</span></p>
     </div>
   </figure>
 </section>
@@ -367,35 +436,35 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     <p class="label">Чому не починають</p>
     <h2>Перешкода не в тестах, а в першому кроці</h2>
   </div>
-  <ul class="cols3">
-    <li><h3>Незрозуміло, з чого почати</h3><p>Конфіг, середовища, авторизація, структура папок. До першого тесту треба прийняти десяток рішень, і кожне можна прийняти неправильно.</p></li>
-    <li><h3>Немає кому показати</h3><p>В команді немає автоматизатора, найняти його не планують. Розробники зайняті своїм.</p></li>
-    <li><h3>AI пише тести, які нічого не перевіряють</h3><p>Запит до чат-бота дає сотню зелених тестів. Частина з них не впаде, навіть якщо продукт зламається.</p></li>
+  <ul class="pains">
+    <li><span class="n">01</span><h3>Незрозуміло, з чого почати</h3><p>Конфіг, середовища, авторизація: десяток рішень до першого тесту.</p></li>
+    <li><span class="n">02</span><h3>Немає кому показати</h3><p>Автоматизатора в команді нема, розробники зайняті своїм.</p></li>
+    <li><span class="n">03</span><h3>AI пише зелене</h3><p>Сотня тестів від чат-бота, і частина не впаде, навіть якщо продукт зламається.</p></li>
   </ul>
 </section>
 
 <section class="band" id="fit">
   <div class="band-head">
     <p class="label">Кому це підійде</p>
-    <h2>Воркшоп для тих, хто вже вміє тестувати</h2>
+    <h2>Для тих, хто вже вміє тестувати</h2>
   </div>
   <div class="fit">
     <div class="yes">
       <h3>Підійде, якщо ви</h3>
-      <ul>
-        <li>тестуєте руками й читаєте запити у DevTools або Postman</li>
-        <li>вмієте відкрити термінал і вставити команду</li>
-        <li>хочете зняти з себе регресію, яку проходите перед кожним релізом</li>
-        <li>маєте тестове середовище свого продукту</li>
-        <li>працюєте в аутсорсі й часто міняєте проєкти: на кожному новому тести треба піднімати з нуля</li>
+      <ul class="chips">
+        <li>читаєте запити в DevTools</li>
+        <li>вмієте вставити команду в термінал</li>
+        <li>втомились від ручної регресії</li>
+        <li>маєте тестове середовище</li>
+        <li>в аутсорсі часто міняєте проєкти</li>
       </ul>
     </div>
     <div class="no">
       <h3>Не підійде, якщо ви</h3>
-      <ul>
-        <li>вже маєте робочий Playwright-проєкт і шукаєте просунуті теми</li>
-        <li>не можете встановлювати програми на робочий комп'ютер</li>
-        <li>чекаєте, що AI писатиме тести без вашої перевірки</li>
+      <ul class="chips">
+        <li>вже маєте Playwright-проєкт</li>
+        <li>не можете ставити програми</li>
+        <li>чекаєте AI без перевірки</li>
       </ul>
     </div>
   </div>
@@ -405,13 +474,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   <div class="band-head">
     <p class="label">З чим виходите</p>
     <h2>Робочий проєкт у вашому репозиторії</h2>
-    <p class="lead">Не конспект і не демо на чужому сайті. Код лежить у вас, запускається у вас і перевіряє ваш продукт.</p>
+    <p class="lead">Код лежить у вас, запускається у вас і перевіряє ваш продукт.</p>
   </div>
   <ul class="out">
-    <li><span class="n">6</span><span class="t">API contract тестів</span><span class="d">Два ендпоінти: успіх, без авторизації, невалідні дані</span></li>
-    <li><span class="n">1</span><span class="t">E2E-сценарій через API</span><span class="d">Створити, змінити, прочитати назад</span></li>
-    <li><span class="n">2</span><span class="t">E2E-тести в браузері</span><span class="d">З Page Object і збереженим входом</span></li>
-    <li><span class="n">1</span><span class="t">Прогін у CI</span><span class="d">Кнопка запуску з вибором частини продукту</span></li>
+    <li><span class="num">6</span><span class="t">API contract тестів</span><span class="d">успіх, без авторизації, невалідні дані</span></li>
+    <li><span class="num">1</span><span class="t">E2E-сценарій через API</span><span class="d">створити, змінити, прочитати назад</span></li>
+    <li><span class="num">2</span><span class="t">E2E-тести в браузері</span><span class="d">Page Object і збережений вхід</span></li>
+    <li><span class="num">1</span><span class="t">Прогін у CI</span><span class="d">кнопка запуску, звіт</span></li>
   </ul>
 </section>
 
@@ -420,13 +489,17 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     <p class="label">Програма</p>
     <h2>Чотири години по хвилинах</h2>
   </div>
+  <div class="timebar" role="img" aria-label="Шкала чотирьох годин: вступ 15 хвилин, розгортання 60, API-тести 75, перерва 10, E2E 50, чесність тестів 20, CI 10">
+    <span style="flex:15">1</span><span style="flex:60">2</span><span style="flex:75">3</span><span class="brk" style="flex:10"></span><span style="flex:50">4</span><span style="flex:20">5</span><span style="flex:10">6</span>
+  </div>
+  <div class="timeaxis" aria-hidden="true"><span>0:00</span><span>1:00</span><span>2:00</span><span>3:00</span><span>4:00</span></div>
   <ol class="plan">
-    <li><span class="time">0:00 – 0:15</span><div><h3>Навіщо і що вийде</h3></div><p class="res">Готовий проєкт на екрані, один прогін, звіт.</p></li>
-    <li><span class="time">0:15 – 1:15</span><div><h3>Розгортання</h3><p class="skill">pw-project-bootstrap</p></div><p class="res">Скіл ставить питання про ваш проєкт і збирає конфіг, авторизацію, типи зі Swagger. Перший зелений тест.</p></li>
-    <li><span class="time">1:15 – 2:30</span><div><h3>API contract тести</h3><p class="skill">qa-shift-left → api-contract-writer</p></div><p class="res">Спочатку список сценаріїв, який ви затверджуєте. Потім код. Шість тестів на два ендпоінти.</p></li>
-    <li><span class="time">2:40 – 3:30</span><div><h3>E2E: API-сценарій і браузер</h3><p class="skill">api-contract-writer, e2e-writer</p></div><p class="res">Правило «200 ще не означає, що збереглося». Два тести в браузері.</p></li>
-    <li><span class="time">3:30 – 3:50</span><div><h3>Чесність тестів</h3><p class="skill">api-contract-reviewer, pw-test-review</p></div><p class="res">Рев'ю власних тестів і вправа «зламай тест».</p></li>
-    <li><span class="time">3:50 – 4:00</span><div><h3>CI і план на два тижні</h3></div><p class="res">Ручний запуск у CI. Який домен покриваєте далі.</p></li>
+    <li><span class="k">1</span><span class="time">0:00–0:15</span><div class="what"><h3>Навіщо і що вийде</h3></div><p class="res">Готовий проєкт на екрані, один прогін, звіт.</p></li>
+    <li><span class="k">2</span><span class="time">0:15–1:15</span><div class="what"><h3>Розгортання</h3><p class="skill">pw-project-bootstrap</p></div><p class="res">Скіл питає про ваш проєкт і збирає конфіг, авторизацію, типи зі Swagger.</p></li>
+    <li><span class="k">3</span><span class="time">1:15–2:30</span><div class="what"><h3>API contract тести</h3><p class="skill">qa-shift-left → api-contract-writer</p></div><p class="res">Список сценаріїв затверджуєте ви, потім код. Шість тестів на два ендпоінти.</p></li>
+    <li><span class="k">4</span><span class="time">2:40–3:30</span><div class="what"><h3>E2E: API і браузер</h3><p class="skill">api-contract-writer, e2e-writer</p></div><p class="res">«200 ще не означає, що збереглося». Два тести в браузері.</p></li>
+    <li><span class="k">5</span><span class="time">3:30–3:50</span><div class="what"><h3>Чесність тестів</h3><p class="skill">api-contract-reviewer, pw-test-review</p></div><p class="res">Рев'ю власних тестів і вправа «зламай тест».</p></li>
+    <li><span class="k">6</span><span class="time">3:50–4:00</span><div class="what"><h3>CI і план на два тижні</h3></div><p class="res">Ручний запуск у CI. Який домен покриваєте далі.</p></li>
   </ol>
 </section>
 
@@ -434,25 +507,23 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   <div class="band-head">
     <p class="label">Як це працює</p>
     <h2>Шість тестів, а не шістдесят</h2>
+    <p class="lead">Скіл — це записаний досвід: він питає, ви відповідаєте й затверджуєте.</p>
   </div>
   <div class="method">
-    <div class="method-copy">
-      <p>Скіл — це записаний досвід: як має виглядати проєкт, які тести потрібні, де AI зазвичай помиляється. Ви не пишете довгий промпт. Скіл питає, ви відповідаєте й затверджуєте.</p>
-      <ol>
-        <li><b>Тест-дизайн.</b> Скіл розбирає фічу шар за шаром і пропонує короткий список сценаріїв з пріоритетами. Зайве ви викреслюєте.</li>
-        <li><b>Код.</b> Тести пишуться тільки за затвердженим списком.</li>
-        <li><b>Рев'ю.</b> Окремий скіл шукає тести, які не можуть упасти.</li>
-        <li><b>Поломка.</b> Ви навмисно ламаєте перевірку й бачите червоний результат.</li>
-      </ol>
-    </div>
+    <ol class="flow">
+      <li><h3>Тест-дизайн</h3><p>Скіл пропонує короткий список сценаріїв. Зайве ви викреслюєте.</p></li>
+      <li><h3>Код</h3><p>Тести пишуться тільки за затвердженим списком.</p></li>
+      <li><h3>Рев'ю</h3><p>Окремий скіл шукає тести, які не можуть упасти.</p></li>
+      <li class="red"><h3>Поломка</h3><p>Ви ламаєте перевірку й бачите червоний результат.</p></li>
+    </ol>
     <div class="demo">
       <figure class="term" aria-live="polite">
         <div class="term-head"><span>users.spec.ts</span><span id="demoState">зелений</span></div>
         <div class="term-body">
-<p class="dim">const response = await api.users.me();</p>
-<p>expect(response.status()).toBe(<span id="demoCode" class="ok">200</span>);</p>
+<p class="dim">const res = await api.users.me();</p>
+<p>expect(res.status()).toBe(<span id="demoCode" class="ok">200</span>);</p>
 <p> </p>
-<p id="demoLine1"><span class="ok">  ✓</span>  GET /users/me › 200, схема</p>
+<p id="demoLine1"><span class="ok">  ✓</span>  GET /me › 200, схема</p>
 <p id="demoLine2" class="dim">  1 passed</p>
         </div>
       </figure>
@@ -470,29 +541,57 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   <div class="proof">
     <article>
       <h3>iGaming-портал</h3>
-      <dl>
-        <dt>0 → 73</dt><dd>API-тести в основній гілці за 9 робочих днів</dd>
-        <dt>20 / 45</dt><dd>ендпоінтів під контрактом</dd>
-        <dt>17</dt><dd>дефектів бекенду знайдено контрактними тестами</dd>
-      </dl>
+      <div class="stat">
+        <span class="num">0 → <span data-to="73">73</span></span>
+        <div class="spark" role="img" aria-label="Ріст кількості тестів по днях: 13, 27, 52, 52, 55, 55, 66, 73">
+          <i style="height:18%"></i><i style="height:37%"></i><i style="height:71%"></i><i style="height:71%"></i><i style="height:75%"></i><i style="height:75%"></i><i style="height:90%"></i><i style="height:100%"></i>
+        </div>
+        <p class="cap">API-тести в основній гілці за 9 робочих днів</p>
+      </div>
+      <div class="stat">
+        <span class="num">20 / 45</span>
+        <div class="meter" role="img" aria-label="44 відсотки"><i style="width:44%"></i></div>
+        <p class="cap">ендпоінтів під контрактом</p>
+      </div>
+      <div class="stat">
+        <span class="num" data-to="17">17</span><span></span>
+        <p class="cap">дефектів бекенду знайдено контрактними тестами</p>
+      </div>
     </article>
     <article>
       <h3>EdTech-платформа</h3>
-      <dl>
-        <dt>22 → 46</dt><dd>тестів одного модуля за три тижні</dd>
-        <dt>1–2 хв</dt><dd>триває прогін цього набору локально</dd>
-        <dt>6/7 і 3/7</dt><dd>оцінки QA з AI-асистентом і повністю автономного агента у власному аудиті</dd>
-      </dl>
+      <div class="stat">
+        <span class="num">22 → <span data-to="46">46</span></span>
+        <div class="spark" role="img" aria-label="Було 22 тести, стало 46"><i style="height:48%"></i><i style="height:100%"></i></div>
+        <p class="cap">тестів одного модуля за три тижні</p>
+      </div>
+      <div class="stat">
+        <span class="num">1–2 хв</span><span></span>
+        <p class="cap">триває прогін цього набору локально</p>
+      </div>
+    </article>
+    <article>
+      <h3>Власний аудит AI-агента</h3>
+      <div class="stat">
+        <span class="num">6 / 7</span>
+        <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i></div>
+        <p class="cap">агент із тестувальником поруч</p>
+      </div>
+      <div class="stat">
+        <span class="num bad">3 / 7</span>
+        <div class="dots bad" aria-hidden="true"><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
+        <p class="cap">той самий агент без людини: хибні «пройдено»</p>
+      </div>
     </article>
   </div>
-  <p class="source">Цифри з історії комітів і робочих нотаток автора, вересень–жовтень 2026. Назви продуктів приховано. Це результати досвідченого QA; для першого тижня після воркшопу реалістично 20–30 тестів на один домен.</p>
+  <p class="source">Історія комітів і робочі нотатки автора, липень–жовтень 2026. Назви продуктів приховано. Це результати досвідченого QA; для першого тижня після воркшопу реалістично 20–30 тестів на один домен.</p>
 </section>
 
 <section class="band" id="about">
   <div class="band-head">
     <p class="label">Ведучий</p>
     <h2>Я тестую так щодня, на робочих тікетах</h2>
-    <p class="lead">Скіли з воркшопу не навчальний приклад. Ними я закриваю тікети на iGaming-продукті: понад 60 робочих сесій із Claude Code в одному репозиторії за три тижні.</p>
+    <p class="lead">Скіли з воркшопу не навчальний приклад: ними я закриваю тікети на iGaming-продукті.</p>
   </div>
   <div class="about">
     <div class="about-id">
@@ -504,69 +603,76 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
         </div>
       </div>
       <p class="links">
-        <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">linkedin.com/in/ihor-solopii-a9585a118</a>
-        <a href="https://github.com/Igorsolop0" target="_blank" rel="noopener">github.com/Igorsolop0</a>
+        <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Igorsolop0" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">qa-claude-skills</a>
       </p>
     </div>
     <div class="about-body">
-      <ul>
-        <li>Понад 10 років у тестуванні: веб, мобільні застосунки, API.</li>
-        <li>Керував командою з 10 QA-інженерів, ручних і автоматизаторів.</li>
-        <li>Будує Playwright-проєкти й набори API contract тестів і підключає їх до CI.</li>
-        <li>Пише скіли для Claude Code, якими користуються на воркшопі. Вони відкриті: <a href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">qa-claude-skills</a>.</li>
+      <ul class="tiles">
+        <li><span class="num">10+</span><span>років у тестуванні</span></li>
+        <li><span class="num">10</span><span>QA в команді, якою керував</span></li>
+        <li><span class="num">60+</span><span>сесій із Claude Code за 3 тижні</span></li>
+      </ul>
+      <ul class="notes">
+        <li>Пише відкриті скіли для Claude Code, якими користуються на воркшопі.</li>
         <li>Автор Burger-методу тест-дизайну, на якому побудований крок зі сценаріями.</li>
       </ul>
-      <div class="method-copy">
+      <div>
         <h3>Як я тестую тікет</h3>
-        <ol>
-          <li><b>Спершу контекст.</b> До першого тікета AI отримує репозиторій, документацію і словник продукту. Без цього він вгадує.</li>
-          <li><b>Тест-дизайн.</b> Що може зробити користувач: клікнути, затиснути, змінити розмір екрана, втратити мережу, перезавантажити сесію, ввести невалідні дані. Плюс стани кнопок.</li>
-          <li><b>Список сценаріїв читаю сам.</b> Викреслюю і додаю. Тільки після цього AI виконує їх у браузері та через API і збирає докази.</li>
-          <li><b>Перевіряю руками.</b> Позитивний шлях і один негативний проходжу сам.</li>
-          <li><b>Фіксую.</b> Тест-кейси йдуть у систему тест-менеджменту, автотести в PR.</li>
+        <ol class="steps">
+          <li><b>Контекст.</b> AI отримує репозиторій, документацію і словник продукту.</li>
+          <li><b>Тест-дизайн.</b> Що може зробити користувач: клік, утримання, розмір екрана, втрата мережі, невалідні дані.</li>
+          <li><b>Читаю список сам.</b> Викреслюю й додаю, потім AI виконує і збирає докази.</li>
+          <li><b>Перевіряю руками.</b> Позитивний шлях і один негативний.</li>
+          <li><b>Фіксую.</b> Кейси в тест-менеджмент, автотести в PR.</li>
         </ol>
       </div>
     </div>
   </div>
 
   <div class="about-more">
-    <div class="fit">
+    <div class="versus">
       <div class="yes">
         <h3>Де AI сильніший за мене</h3>
         <ul>
-          <li>Негативні сценарії. Людина втомлюється і пропускає, він ні.</li>
+          <li>Негативні сценарії: не втомлюється і не пропускає.</li>
           <li>Порівняння шарів: бекенд віддає поле, а на екрані його немає.</li>
-          <li>Рутина: дані для тесту, запити, знімки екрана, чернетка звіту.</li>
+          <li>Рутина: дані для тесту, запити, знімки екрана.</li>
         </ul>
       </div>
       <div class="no">
         <h3>Де я його ловлю</h3>
         <ul>
-          <li>Агент клікнув через JavaScript по вимкненій кнопці й записав баг, якого не існує. Користувач так клікнути не може.</li>
-          <li>Тест на бонус перевіряв кількість кроків. Суми могли зберегтися нулями, і він лишився б зеленим.</li>
-          <li>Повідомлення «Збережено» на екрані, хоча запит пішов без зміненого поля. Видно лише тоді, коли звіряєш екран із запитом.</li>
-          <li>Агент без людини у моєму аудиті отримав 3 з 7. Той самий агент із тестувальником поруч: 6 з 7.</li>
+          <li>Клікнув кодом по вимкненій кнопці й записав баг, якого не існує.</li>
+          <li>Тест на бонус перевіряв кількість кроків, а не суми.</li>
+          <li>«Збережено» на екрані, хоча запит пішов без зміненого поля.</li>
         </ul>
       </div>
     </div>
-
-    <p class="quote">AI не знає, що кнопка виходу не має бути зеленою, а клік по «Увійти» не має закривати вікно. <em>Це знає людина, яка роками користується застосунками.</em> Тому воркшоп для тестувальників, а не замість них.</p>
+    <p class="quote">AI не знає, що кнопка виходу не має бути зеленою, а клік по «Увійти» не має закривати вікно. <em>Це знає людина, яка роками користується застосунками.</em></p>
   </div>
 </section>
 
 <section class="band" id="terms">
   <div class="band-head">
-    <p class="label">Формат</p>
+    <p class="label">Формат і вартість</p>
     <h2>Як проходить воркшоп</h2>
   </div>
-  <dl class="terms">
-    <div><dt>Тривалість</dt><dd>4 години з однією перервою</dd></div>
-    <div><dt>Група</dt><dd>4–8 учасників, робота парами</dd></div>
-    <div><dt>На чому</dt><dd>Ваш продукт і ваш репозиторій</dd></div>
-    <div><dt>До воркшопу</dt><dd>Дзвінок 45 хв і чеклист підготовки</dd></div>
-    <div><dt>Після</dt><dd>Дві зустрічі по годині: рев'ю ваших PR</dd></div>
-    <div><dt>Дати й вартість</dt><dd>Individual — від $250 · команда — від $2 400</dd></div>
-  </dl>
+  <div class="deal">
+    <div class="prices">
+      <div><span class="who">Individual</span><span class="num">від $250</span></div>
+      <div class="team"><span class="who">Команда</span><span class="num">від $2 400</span></div>
+    </div>
+    <dl class="terms">
+      <div><dt>Тривалість</dt><dd>4 години, одна перерва</dd></div>
+      <div><dt>Група</dt><dd>4–8 учасників, парами</dd></div>
+      <div><dt>На чому</dt><dd>Ваш продукт і репозиторій</dd></div>
+      <div><dt>До воркшопу</dt><dd>Дзвінок 45 хв і чеклист</dd></div>
+      <div><dt>Після</dt><dd>Дві зустрічі: рев'ю ваших PR</dd></div>
+      <div><dt>Дати</dt><dd>Узгоджуємо з командою</dd></div>
+    </dl>
+  </div>
 </section>
 
 <section class="band" id="faq">
@@ -601,7 +707,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     </details>
     <details>
       <summary>Скіл підійде до мого проєкту?</summary>
-      <p>Стартує на будь-якому. Жоден скіл не робить усе за один виклик: далі ви доточуєте його під свій продукт, і це нормально. Особливості продукту записуються в один файл проєкту, а скіл сам пропонує, що туди додати. На воркшопі показуємо, як це робити.</p>
+      <p>Стартує на будь-якому. Жоден скіл не робить усе за один виклик: далі ви доточуєте його під свій продукт, і це нормально. Особливості продукту записуються в один файл проєкту, а скіл сам пропонує, що туди додати.</p>
     </details>
     <details>
       <summary>Що буде через місяць?</summary>
@@ -610,9 +716,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   </div>
 </section>
 
-<section class="final">
+<section class="final" id="contact">
   <h2>Оберіть два ендпоінти й один сценарій</h2>
-  <p>Той, який команда перевіряє руками перед кожним релізом. З них почнемо. Напишіть мені, і домовимось про дзвінок на 45 хвилин.</p>
+  <p>Той, який команда перевіряє руками перед кожним релізом. Напишіть мені, і домовимось про дзвінок на 45 хвилин.</p>
   <div class="cta-row">
     <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
     <a class="btn ghost" href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">Подивитись скіли</a>
@@ -626,138 +732,67 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 </div>
 
-<button class="to-top" id="toTop" type="button" aria-label="Догори">↑</button>
+<div class="cta-bar" id="ctaBar">
+  <p><b>Воркшоп від $250</b>4 години, наживо</p>
+  <a class="btn sm" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати</a>
+</div>
 
 <script>
 (function () {
-  // Sticky header + scroll-spy + progress bar + back-to-top
+  // Top bar state, reading progress, current-section highlight, phone contact bar
   var topbar = document.getElementById('topbar');
   var progress = document.getElementById('progress');
-  var toTop = document.getElementById('toTop');
+  var ctaBar = document.getElementById('ctaBar');
+  var contact = document.getElementById('contact');
   var navLinks = Array.prototype.slice.call(document.querySelectorAll('.top nav a'));
   var sections = navLinks.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  var ticking = false;
 
-  function onScroll() {
-    var y = window.scrollY;
-    topbar.classList.toggle('stuck', y > 90);
-    toTop.classList.toggle('show', y > 600);
-    var h = document.documentElement.scrollHeight - window.innerHeight;
+  function update() {
+    ticking = false;
+    var y = window.scrollY || window.pageYOffset;
+    var vh = window.innerHeight;
+    topbar.classList.toggle('scrolled', y > 8);
+    var h = document.documentElement.scrollHeight - vh;
     progress.style.transform = 'scaleX(' + (h > 0 ? Math.min(y / h, 1) : 0) + ')';
-    // scroll-spy: find the section whose top is closest above the middle of the viewport
     var active = -1;
-    var mid = y + window.innerHeight * 0.4;
+    var mark = y + vh * 0.35;
     for (var i = 0; i < sections.length; i++) {
-      if (sections[i] && sections[i].offsetTop <= mid) active = i;
+      if (sections[i] && sections[i].offsetTop <= mark) active = i;
     }
     navLinks.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+    var nearContact = contact.getBoundingClientRect().top < vh;
+    ctaBar.classList.toggle('show', y > 420 && !nearContact);
   }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  window.addEventListener('resize', onScroll);
+  update();
 })();
 
-// Keep the active nav pill visible in the horizontal scroller on mobile
 (function () {
-  var nav = document.querySelector('.top nav');
-  if (!nav) return;
-  document.querySelectorAll('.top nav a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      // let the anchor jump first, then bring the pill into view
-      setTimeout(function () {
-        var r = a.getBoundingClientRect();
-        if (r.left < 8 || r.right > window.innerWidth - 8) {
-          a.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-      }, 250);
-    });
+  // Proof numbers count up once, when they enter view
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  document.querySelectorAll('[data-to]').forEach(function (el) {
+    var to = +el.getAttribute('data-to');
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var t = Math.min((ts - start) / 900, 1);
+        el.textContent = Math.round(to * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(step); else el.textContent = to;
+      }
+      requestAnimationFrame(step);
+    }, { threshold: 0.6 });
+    io.observe(el);
   });
 })();
-</script>
-<script>
-(function () {
-  // Section reveal on scroll (subtle, once) — IntersectionObserver with scroll fallback
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
-  var bands = Array.prototype.slice.call(document.querySelectorAll('.band'));
-  if (reduce) { bands.forEach(function (b) { b.classList.add('visible'); }); return; }
 
-  function inView(el) {
-    var r = el.getBoundingClientRect();
-    return r.top < window.innerHeight * 0.88 && r.bottom > 0;
-  }
-  function check() {
-    bands = bands.filter(function (b) {
-      if (inView(b)) { b.classList.add('visible'); return false; }
-      return true;
-    });
-    if (!bands.length) window.removeEventListener('scroll', check);
-  }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.05 });
-  bands.forEach(function (b) { io.observe(b); });
-  window.addEventListener('scroll', check, { passive: true });
-  check();
-})();
-</script>
-<script>
 (function () {
-  // Proof numbers count up when the section enters view
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var dts = document.querySelectorAll('.proof dt');
-  if (!dts.length) return;
-  function parseNum(s) {
-    var m = s.match(/^(\d+)\s*(?:→|\u2192)\s*(\d+)$/);
-    if (m) return { from: +m[1], to: +m[2], range: true };
-    var n = s.match(/^(\d+)$/);
-    if (n) return { from: 0, to: +n[1], range: false };
-    return null;
-  }
-  function animate(dt, data) {
-    var dur = 900, start = null;
-    function fmt(v) { return data.range ? v + ' → ' + data.to : String(v); }
-    function step(ts) {
-      if (!start) start = ts;
-      var t = Math.min((ts - start) / dur, 1);
-      var eased = 1 - Math.pow(1 - t, 3);
-      dt.textContent = fmt(Math.round(data.from + (data.to - data.from) * eased));
-      if (t < 1) requestAnimationFrame(step);
-      else dt.textContent = data.range ? data.from + ' → ' + data.to : String(data.to);
-    }
-    requestAnimationFrame(step);
-  }
-  function arm() {
-    dts.forEach(function (dt) {
-      var data = parseNum(dt.textContent.trim());
-      if (!data || reduce) return;
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) { io.disconnect(); animate(dt, data); }
-        });
-      }, { threshold: 0.6 });
-      io.observe(dt);
-    });
-  }
-  arm();
-})();
-</script>
-(function () {
-  // Hero terminal: play the run animation when it scrolls into view (once)
-  var heroBody = document.querySelector('.term-body.run');
-  if (heroBody && 'IntersectionObserver' in window) {
-    var seen = false;
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting && !seen) { seen = true; heroBody.classList.add('play'); io.disconnect(); }
-      });
-    }, { threshold: 0.4 });
-    io.observe(heroBody);
-  }
-})();
-</script>
-<script>
-(function () {
+  // Break-the-test demo
   var btn = document.getElementById('demoBtn');
   var code = document.getElementById('demoCode');
   var line1 = document.getElementById('demoLine1');
@@ -769,15 +804,15 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
     if (broken) {
       code.textContent = '201';
       code.className = 'bad';
-      line1.innerHTML = '<span class="bad">  ✘</span>  GET /users/me › 200, схема';
+      line1.innerHTML = '<span class="bad">  ✘</span>  GET /me › 200, схема';
       line2.className = 'bad';
-      line2.textContent = '  Expected: 201   Received: 200';
+      line2.textContent = '  Expected: 201  Received: 200';
       state.textContent = 'червоний';
       btn.textContent = 'Полагодити тест';
     } else {
       code.textContent = '200';
       code.className = 'ok';
-      line1.innerHTML = '<span class="ok">  ✓</span>  GET /users/me › 200, схема';
+      line1.innerHTML = '<span class="ok">  ✓</span>  GET /me › 200, схема';
       line2.className = 'dim';
       line2.textContent = '  1 passed';
       state.textContent = 'зелений';
