@@ -435,6 +435,10 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 .final .form-msg:empty { display: none; }
 .final .done { color: var(--term-pass); font-size: 1.15rem; font-weight: 600; }
 @media (max-width: 860px) { .signup .btn { justify-self: stretch; } }
+.proof.even .stat { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.proof.even .stat .num { font-size: clamp(1.35rem, 2.3vw, 1.7rem); }
+.stat .num .bad { color: var(--fail); }
+@media (max-width: 860px) { .proof.even .stat .num { font-size: 1.7rem; } }
 </style>
 </head>
 <body id="top">
@@ -529,34 +533,26 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <article>
       <h3>Регресія</h3>
       <div class="stat">
-        <span class="num bad">3 дні</span><span></span>
-        <p class="cap">я проходив повну регресію руками</p>
-      </div>
-      <div class="stat">
-        <span class="num">2 хв</span><span></span>
-        <p class="cap">ідуть API-тести, які покривають бізнес-логіку</p>
+        <span class="num"><span class="bad">3 дні</span> → 2 хв</span>
+        <p class="cap">повна регресія руками проти API-тестів, які покривають бізнес-логіку</p>
       </div>
     </article>
     <article>
       <h3>З нуля</h3>
       <div class="stat">
         <span class="num">0 → <span data-to="73">73</span></span>
-        <div class="spark" role="img" aria-label="Ріст кількості тестів по днях: 13, 27, 52, 52, 55, 55, 66, 73">
-          <i style="height:18%"></i><i style="height:37%"></i><i style="height:71%"></i><i style="height:71%"></i><i style="height:75%"></i><i style="height:75%"></i><i style="height:90%"></i><i style="height:100%"></i>
-        </div>
         <p class="cap">тести за 9 робочих днів на робочому проєкті</p>
       </div>
     </article>
     <article>
       <h3>AI без нагляду</h3>
       <div class="stat">
-        <span class="num bad">«Пройдено»</span><span></span>
-        <p class="cap">писав у звіті AI, коли тестував сам. Частина цих перевірок насправді не пройшла.</p>
-        <p class="cap">Тому на воркшопі кожен результат перевіряєш ти.</p>
+        <span class="num bad">«Пройдено»</span>
+        <p class="cap">писав AI, коли тестував сам, хоча частина перевірок не пройшла</p>
       </div>
     </article>
   </div>
-  <p class="source">Частину перевірок я й далі проходжу руками: автоматизується не все.</p>
+  <p class="source">Тому результат AI я перевіряю щоразу, а частину перевірок і далі проходжу руками: автоматизується не все.</p>
 </section>
 
 <section class="band" id="problem">
