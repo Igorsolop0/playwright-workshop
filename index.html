@@ -416,6 +416,25 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
   .flow.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .demos { grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 24px; }
 }
+
+/* Sign-up form */
+.signup { display: grid; gap: 14px; width: 100%; max-width: 34em; }
+.signup label { display: grid; gap: 6px; font-size: 0.9rem; color: var(--term-dim); }
+.signup .opt { font-size: 0.8rem; opacity: 0.8; }
+.signup input, .signup textarea {
+  font: inherit; font-size: 1rem; color: var(--term-fg); background: transparent;
+  border: 1px solid #3A5C5B; border-radius: 8px; padding: 12px 14px; min-height: 48px; width: 100%;
+}
+.signup textarea { min-height: 88px; resize: vertical; }
+.signup input:focus-visible, .signup textarea:focus-visible { outline: 2px solid var(--term-pass); outline-offset: 1px; border-color: var(--term-pass); }
+.signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; }
+.signup .btn { justify-self: start; cursor: pointer; }
+.final .form-note { font-size: 0.85rem; line-height: 1.5; }
+.final .form-note a { color: var(--term-fg); text-decoration: underline; text-underline-offset: 2px; }
+.final .form-msg { color: var(--term-fail); font-size: 0.93rem; }
+.final .form-msg:empty { display: none; }
+.final .done { color: var(--term-pass); font-size: 1.15rem; font-weight: 600; }
+@media (max-width: 860px) { .signup .btn { justify-self: stretch; } }
 </style>
 </head>
 <body id="top">
@@ -430,7 +449,7 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
       <a href="#terms">Ціна</a>
       <a href="#faq">Питання</a>
     </nav>
-    <a class="btn sm" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати</a>
+    <a class="btn sm" href="#contact">Записатись</a>
   </div>
   <div class="progress" id="progress" aria-hidden="true"></div>
 </header>
@@ -444,7 +463,7 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <h1>Я manual QA. Я не став автоматизатором. Я <em>автоматизував свою регресію.</em></h1>
     <p class="lead">Ніхто не напише твої автотести так, як ти. За чотири години зберемо проєкт і напишемо перші: і на API, і в браузері.</p>
     <div class="cta-row">
-      <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
+      <a class="btn" href="#contact">Записатись на перший набір</a>
       <a class="btn ghost" href="#program">Програма</a>
     </div>
     <p class="facts">
@@ -723,11 +742,24 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 
 <section class="final" id="contact">
   <h2>Хочеш на перший набір?</h2>
-  <p>Напиши мені в LinkedIn, і я повідомлю дату першого набору.</p>
-  <div class="cta-row">
-    <a class="btn" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати в LinkedIn</a>
-    <a class="btn ghost" href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">Подивитись скіли</a>
-  </div>
+  <p id="signupLead">Залиш email, і я напишу, щойно буде дата. Платити зараз нічого не треба.</p>
+  <form class="signup" id="signup" action="https://formspree.io/f/mgaoldlw" method="POST">
+    <label>Ім'я
+      <input type="text" name="name" autocomplete="name" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" autocomplete="email" inputmode="email" required>
+    </label>
+    <label>Що тебе зупиняє почати автоматизацію? <span class="opt">Необов'язково</span>
+      <textarea name="message" rows="3"></textarea>
+    </label>
+    <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <input type="hidden" name="_subject" value="Заявка на воркшоп: перший набір">
+    <button class="btn" type="submit" id="signupBtn">Записатись на перший набір</button>
+    <p class="form-msg" id="signupMsg" role="status" aria-live="polite"></p>
+    <p class="form-note">Email потрібен лише для того, щоб повідомити дату набору. Нікому його не передаю. Заявки зберігає сервіс Formspree. Щоб видалити свою, напиши мені в <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">LinkedIn</a>.</p>
+  </form>
+  <p class="form-note" id="signupAlt">Не хочеш лишати email? <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Напиши мені в LinkedIn</a>.</p>
 </section>
 
 <footer class="foot">
@@ -739,7 +771,7 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 
 <div class="cta-bar" id="ctaBar">
   <p><b>Перший набір: $100</b>4 години, наживо</p>
-  <a class="btn sm" href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Написати</a>
+  <a class="btn sm" href="#contact">Записатись</a>
 </div>
 
 <script>
@@ -793,6 +825,38 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
       requestAnimationFrame(step);
     }, { threshold: 0.6 });
     io.observe(el);
+  });
+})();
+
+(function () {
+  // Sign-up form: send to Formspree without leaving the page
+  var form = document.getElementById('signup');
+  if (!form || !window.fetch || !window.FormData) return;
+  var btn = document.getElementById('signupBtn');
+  var msg = document.getElementById('signupMsg');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Надсилаю…';
+    msg.textContent = '';
+    fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); })
+      .then(function () {
+        var done = document.createElement('p');
+        done.className = 'done';
+        done.setAttribute('role', 'status');
+        done.textContent = 'Дякую. Напишу, щойно буде дата.';
+        form.parentNode.replaceChild(done, form);
+        var lead = document.getElementById('signupLead');
+        var alt = document.getElementById('signupAlt');
+        if (lead) lead.remove();
+        if (alt) alt.remove();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Записатись на перший набір';
+        msg.textContent = 'Не вдалось надіслати. Спробуй ще раз або напиши мені в LinkedIn.';
+      });
   });
 })();
 
