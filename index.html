@@ -396,13 +396,6 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 .seat .next { font: 500 0.86rem var(--mono); color: var(--term-dim); padding-top: 14px; border-top: 1px solid var(--term-line); }
 @media (max-width: 860px) { .proof.even { grid-template-columns: minmax(0, 1fr); } .story { font-size: 1rem; } }
 
-/* Regression bars */
-.bar { display: block; height: 10px; align-self: center; }
-.bar i { display: block; height: 100%; border-radius: 5px; background: var(--accent); transform-origin: left center; transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
-.bar.bad i { background: var(--fail); }
-.bar.short i { width: 3px; transition-delay: 0.5s; }
-.bar.pre i { transform: scaleX(0); }
-
 /* Scenario picker */
 .flow.wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .demos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; margin-top: 36px; }
@@ -517,11 +510,11 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <article>
       <h3>Регресія</h3>
       <div class="stat">
-        <span class="num bad">3 дні</span><span class="bar bad" aria-hidden="true"><i></i></span>
+        <span class="num bad">3 дні</span><span></span>
         <p class="cap">я проходив повну регресію руками</p>
       </div>
       <div class="stat">
-        <span class="num">2 хв</span><span class="bar short" aria-hidden="true"><i></i></span>
+        <span class="num">2 хв</span><span></span>
         <p class="cap">ідуть API-тести, які покривають бізнес-логіку</p>
       </div>
     </article>
@@ -785,15 +778,6 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 (function () {
   // Proof numbers count up once, when they enter view
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
-  document.querySelectorAll('.bar').forEach(function (el) {
-    el.classList.add('pre');
-    var io = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      io.disconnect();
-      el.classList.remove('pre');
-    }, { threshold: 0.6 });
-    io.observe(el);
-  });
   document.querySelectorAll('[data-to]').forEach(function (el) {
     var to = +el.getAttribute('data-to');
     var io = new IntersectionObserver(function (entries) {
