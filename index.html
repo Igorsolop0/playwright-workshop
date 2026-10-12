@@ -395,6 +395,34 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 .seat .num { font-size: clamp(2.2rem, 9vw, 3rem); color: var(--term-pass); }
 .seat .next { font: 500 0.86rem var(--mono); color: var(--term-dim); padding-top: 14px; border-top: 1px solid var(--term-line); }
 @media (max-width: 860px) { .proof.even { grid-template-columns: minmax(0, 1fr); } .story { font-size: 1rem; } }
+
+/* Regression bars */
+.bar { display: block; height: 10px; align-self: center; }
+.bar i { display: block; height: 100%; border-radius: 5px; background: var(--accent); transform-origin: left center; transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.bar.bad i { background: var(--fail); }
+.bar.short i { width: 3px; transition-delay: 0.5s; }
+.bar.pre i { transform: scaleX(0); }
+
+/* Scenario picker */
+.flow.wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.demos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; margin-top: 36px; }
+.demo-step { font: 700 0.76rem var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+.picks { display: flex; flex-direction: column; gap: 6px; }
+.pick {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 12px;
+  text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); font: inherit; font-size: 0.95rem; line-height: 1.3; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pick::before { content: "✓"; display: inline-block; width: 1ch; font: 700 0.9rem var(--mono); color: var(--accent); }
+.pick[aria-pressed="false"] { background: transparent; color: var(--muted); text-decoration: line-through; }
+.pick[aria-pressed="false"]::before { content: "✘"; color: var(--fail); }
+.pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 860px) {
+  .flow.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .demos { grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 24px; }
+}
 </style>
 </head>
 <body id="top">
@@ -489,11 +517,11 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <article>
       <h3>Регресія</h3>
       <div class="stat">
-        <span class="num bad">3 дні</span><span></span>
+        <span class="num bad">3 дні</span><span class="bar bad" aria-hidden="true"><i></i></span>
         <p class="cap">я проходив повну регресію руками</p>
       </div>
       <div class="stat">
-        <span class="num">2 хв</span><span></span>
+        <span class="num">2 хв</span><span class="bar short" aria-hidden="true"><i></i></span>
         <p class="cap">ідуть API-тести, які покривають бізнес-логіку</p>
       </div>
     </article>
@@ -592,14 +620,37 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
     <h2>Ти вирішуєш, AI пише</h2>
     <p class="lead">Скілом я називаю записану інструкцію для AI. Він питає, ти відповідаєш і затверджуєш.</p>
   </div>
-  <div class="method">
-    <ol class="flow">
-      <li><h3>Сценарії</h3><p>AI пропонує короткий список. Зайве ти викреслюєш.</p></li>
-      <li><h3>Код</h3><p>Тести пишуться тільки за твоїм списком.</p></li>
-      <li><h3>Перевірка</h3><p>Запускаєш і читаєш результат сам.</p></li>
-      <li class="red"><h3>Поломка</h3><p>Ламаєш перевірку й бачиш червоний результат.</p></li>
-    </ol>
+  <ol class="flow wide">
+    <li><h3>Сценарії</h3><p>AI пропонує короткий список. Зайве ти викреслюєш.</p></li>
+    <li><h3>Код</h3><p>Тести пишуться тільки за твоїм списком.</p></li>
+    <li><h3>Перевірка</h3><p>Запускаєш і читаєш результат сам.</p></li>
+    <li class="red"><h3>Поломка</h3><p>Ламаєш перевірку й бачиш червоний результат.</p></li>
+  </ol>
+  <div class="demos">
     <div class="demo">
+      <p class="demo-step">Спробуй: кроки 1 і 2</p>
+      <p class="demo-note">AI запропонував вісім сценаріїв для реєстрації. Два з них зайві. Викресли їх.</p>
+      <div class="picks" id="pickList">
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › успіх">Реєстрація з валідними даними</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › без email">Без email</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › без пароля">Без пароля</button>
+        <button class="pick" type="button" aria-pressed="true" data-junk data-test="api › реєстрація › email порожній">Email порожній</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › кривий email">Кривий email</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › короткий пароль">Короткий пароль</button>
+        <button class="pick" type="button" aria-pressed="true" data-junk data-test="браузер › кнопка зелена">Кнопка «Зареєструватись» зелена</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › зайнятий email">Зайнятий email</button>
+      </div>
+      <button class="btn ghost" id="pickBtn" type="button">Написати тести</button>
+      <figure class="term" aria-live="polite">
+        <div class="term-head"><span>register.spec.ts</span><span id="pickState">чекає на список</span></div>
+        <div class="term-body" id="pickOut">
+<p class="dim">  тестів ще немає</p>
+        </div>
+      </figure>
+      <p class="demo-note" id="pickNote">Що лишиш у списку, те AI й напише.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-step">Спробуй: крок 4</p>
       <figure class="term" aria-live="polite">
         <div class="term-head"><span>users.spec.ts</span><span id="demoState">зелений</span></div>
         <div class="term-body">
@@ -734,6 +785,15 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
 (function () {
   // Proof numbers count up once, when they enter view
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  document.querySelectorAll('.bar').forEach(function (el) {
+    el.classList.add('pre');
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      el.classList.remove('pre');
+    }, { threshold: 0.6 });
+    io.observe(el);
+  });
   document.querySelectorAll('[data-to]').forEach(function (el) {
     var to = +el.getAttribute('data-to');
     var io = new IntersectionObserver(function (entries) {
@@ -749,6 +809,48 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
       requestAnimationFrame(step);
     }, { threshold: 0.6 });
     io.observe(el);
+  });
+})();
+
+(function () {
+  // Scenario picker demo: tests are written only for the scenarios left in the list
+  var picks = Array.prototype.slice.call(document.querySelectorAll('#pickList .pick'));
+  var btn = document.getElementById('pickBtn');
+  var out = document.getElementById('pickOut');
+  var state = document.getElementById('pickState');
+  var note = document.getElementById('pickNote');
+
+  function kept() { return picks.filter(function (p) { return p.getAttribute('aria-pressed') === 'true'; }); }
+  function plural(n) { return n === 1 ? 'тест' : (n < 5 ? 'тести' : 'тестів'); }
+  function clear() {
+    out.className = 'term-body';
+    out.innerHTML = '<p class="dim">  тестів ще немає</p>';
+    state.textContent = 'чекає на список';
+    note.textContent = 'Що лишиш у списку, те AI й напише.';
+    btn.disabled = kept().length === 0;
+  }
+  picks.forEach(function (p) {
+    p.addEventListener('click', function () {
+      p.setAttribute('aria-pressed', p.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      clear();
+    });
+  });
+  btn.addEventListener('click', function () {
+    var list = kept();
+    var n = list.length;
+    if (!n) return;
+    var junk = list.filter(function (p) { return p.hasAttribute('data-junk'); }).length;
+    var html = '<p class="dim" style="--i:0">Running ' + n + (n === 1 ? ' test' : ' tests') + '</p>';
+    list.forEach(function (p, i) {
+      html += '<p style="--i:' + (i + 1) + '"><span class="ok">  ✓</span>  ' + p.getAttribute('data-test') + '</p>';
+    });
+    html += '<p style="--i:' + (n + 1) + '"><span class="ok">  ' + n + ' passed</span></p>';
+    out.className = 'term-body run';
+    out.innerHTML = html;
+    state.textContent = n + ' ' + plural(n);
+    note.textContent = junk
+      ? 'AI написав усе, що ти лишив. Зайвих серед них: ' + junk + '. Спробуй викреслити дубль і перевірку кольору.'
+      : 'Тести написано тільки за твоїм списком, зайвих немає.';
   });
 })();
 
