@@ -250,25 +250,16 @@ h1 .hi {
   max-width: 100%;
 }
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 8px 16px;
-  background: var(--sheet);
+.facts { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.92rem; max-width: 100%; }
+.facts span {
   border: 1px solid var(--rule);
   border-radius: 999px;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: var(--ink);
+  padding: 6px 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  line-height: 1.35;
 }
-.facts span { border: 0; border-radius: 0; padding: 0; color: var(--ink); white-space: nowrap; }
-.facts b { font-weight: 700; }
-.facts span:not(:last-child)::after { content: " · "; color: var(--muted); font-weight: 400; }
+.facts b { color: var(--ink); font-weight: 600; }
 
 .term {
   position: relative;
@@ -299,27 +290,13 @@ h1 .hi {
 
 .band { padding-block: 64px; border-top: 1px solid var(--rule); }
 .band-head {
-  display: grid;
-  grid-template-columns: 9.5rem minmax(0, 1fr);
-  column-gap: 18px;
-  row-gap: 8px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   margin-bottom: 28px;
-  max-width: 48em;
 }
-.band-head .label {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: end;
-  text-align: right;
-  padding-top: 0;
-  line-height: 1.2;
-  white-space: nowrap;
-  /* Sit on the heading's first line, centered, at every viewport. */
-  margin-top: calc((1.25 * clamp(1.5rem, 2.6vw, 2rem) - 1.2 * 0.875rem) / 2);
-}
-.band-head h2 { grid-column: 2; grid-row: 1; }
-.band-head .lead { grid-column: 2; }
+.band-head .lead { max-width: 36em; }
 
 .struck {
   color: var(--muted);
@@ -386,7 +363,7 @@ h1 .hi {
   overflow: visible;
 }
 .out li {
-  padding: 18px 20px 0 0;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -532,7 +509,7 @@ h1 .hi {
   border: 0;
   border-top: 1px solid var(--rule);
   border-radius: 0;
-  padding: 16px 16px 0 0;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -720,24 +697,17 @@ h1 .hi {
   .hero .cta-row .btn { flex: 1 1 auto; }
   .hero .cta-row .btn.ghost { display: none; }
   .band { padding-block: 40px; }
-  .band-head {
-    grid-template-columns: minmax(0, 1fr);
-    margin-bottom: 20px;
-    gap: 6px;
-    max-width: none;
-  }
-  .band-head .label, .band-head h2, .band-head .lead { grid-column: 1; grid-row: auto; justify-self: start; text-align: left; }
-  .band-head .label { padding-top: 0; margin-top: 0; white-space: normal; }
+  .band-head { margin-bottom: 20px; gap: 8px; }
   .lead { font-size: 1.04rem; }
   .story { font-size: 1rem; line-height: 24px; }
 
   .pains { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .proof, .proof.even { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .out { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .out li { padding: 16px 14px 0 0; }
+  .out li { padding: 18px 16px; }
   .out li:nth-child(odd) { border-right: 1px solid var(--rule); }
   .out li:nth-child(even) { border-right: 0; }
-  .out li:nth-child(n+3) { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
+  .out li:nth-child(n+3) { border-top: 1px solid var(--rule); }
   .out .num { font-size: 2.15rem; }
   .proof.even .stat .num { font-size: 1.85rem; }
 
