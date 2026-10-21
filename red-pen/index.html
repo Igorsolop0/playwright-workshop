@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Воркшоп для manual QA: за 4 години збираєш Playwright-проєкт і пишеш перші автотести на API та в браузері. Веде manual QA, який автоматизував власну регресію.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Автоматизуй свою регресію: воркшоп для manual QA">
+<meta property="og:description" content="Воркшоп для manual QA: за 4 години збираєш Playwright-проєкт і пишеш перші автотести на API та в браузері. Веде manual QA, який автоматизував власну регресію.">
+<meta property="og:url" content="https://igorsolop0.github.io/playwright-workshop/">
+<meta property="og:image" content="https://igorsolop0.github.io/playwright-workshop/assets/og.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://igorsolop0.github.io/playwright-workshop/">
+<meta name="theme-color" content="#F3EEE3">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F3EEE3'/%3E%3Cpath d='M7 18.2 13.2 24 25 9' fill='none' stroke='%23C0281C' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Воркшоп для manual QA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Golos+Text:wght@400;500;600;700;800&family=PT+Mono&display=swap">
+<style>
+/* Червона ручка: a printed report on lined paper, marked with a red pen. */
+:root {
+  --paper: #F3EEE3;
+  --sheet: #FBF8F1;
+  --ink: #22201C;
+  --red: #C0281C;
+  --blue: #2C4A86;
+  --blue-deep: #1E3568;
+  --hi: #F7DC4A;
+  --pass: #3D6B35;
+  --muted: #6A6358;
+  --rule: #CDBFAE;
+  --stamp: #F2C230;
+  --stamp-ink: #151515;
+  --display: 'Golos Text', 'Segoe UI', Arial, sans-serif;
+  --body: 'Golos Text', 'Segoe UI', Arial, sans-serif;
+  --hand: 'Caveat', 'Segoe Print', cursive;
+  --mono: 'PT Mono', 'Courier New', monospace;
+  --bar-h: 53px;
+  --pen-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 20' preserveAspectRatio='none'%3E%3Cpath d='M2 12 C 36 6 58 16 96 10 C 140 3 168 16 214 9 C 258 3 286 15 318 8' fill='none' stroke='%23C0281C' stroke-width='3.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; color-scheme: light; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    rgba(106, 99, 88, 0.22) 31px,
+    rgba(106, 99, 88, 0.22) 32px
+  );
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.55;
+  padding-inline: 20px;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  bottom: 0;
+  left: 11px;
+  width: 2px;
+  background: var(--red);
+  pointer-events: none;
+}
+.wrap { max-width: 1120px; margin-inline: auto; position: relative; z-index: 1; }
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; text-wrap: balance; letter-spacing: -0.02em; color: var(--ink); }
+h1 { font-size: clamp(1.7rem, 4.4vw, 2.75rem); line-height: 1.12; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.15rem); line-height: 1.18; font-weight: 800; }
+h3 { font-size: 1.08rem; line-height: 1.3; font-weight: 700; letter-spacing: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+::selection { background: var(--hi); color: var(--ink); }
+section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
+
+.label {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--red);
+}
+.lead { font-size: 1.12rem; color: var(--ink); max-width: 36em; }
+.muted { color: var(--muted); }
+.num {
+  font-family: var(--display);
+  font-weight: 800;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+.bad, .num.bad, .stat .num .bad { color: var(--red); }
+
+.hi {
+  font-style: normal;
+  color: var(--ink);
+  background-color: transparent;
+  background-image: linear-gradient(var(--hi), var(--hi));
+  background-repeat: no-repeat;
+  background-size: 100% 42%;
+  background-position: 0 84%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.08em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 1rem var(--body);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 14px 22px;
+  border-radius: 0;
+  border: 2px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  min-height: 48px;
+}
+.btn:hover { background: #9A1F16; border-color: #9A1F16; color: #fff; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn.ghost:hover { background: transparent; border-color: var(--red); color: var(--red); }
+.btn.sm { padding: 8px 14px; min-height: 40px; font-size: 0.92rem; }
+.btn:disabled {
+  background: #E7E0D4;
+  border-color: #B7AFA3;
+  color: var(--ink);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin-inline: -20px;
+  padding-inline: 20px;
+  background: var(--paper);
+  border-bottom: 1px solid transparent;
+}
+.top.scrolled { border-bottom-color: var(--rule); }
+.top-in {
+  max-width: 1120px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: var(--bar-h);
+}
+.top .who { font-weight: 700; text-decoration: none; white-space: nowrap; color: var(--ink); }
+.qa {
+  font-family: var(--hand);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--red);
+  letter-spacing: 0;
+}
+.top nav { display: flex; gap: 22px; margin-left: auto; font-size: 0.95rem; }
+.top nav a {
+  text-decoration: none;
+  color: var(--ink);
+  position: relative;
+  padding-block: 14px;
+  white-space: nowrap;
+}
+.top nav a:hover { color: var(--red); }
+.top nav a.active { color: var(--red); }
+.top nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 2px;
+  background: var(--red);
+}
+.progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 3px;
+  width: 100%;
+  background: var(--red);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 48px;
+  align-items: center;
+  padding-block: 36px 64px;
+}
+.hero-copy { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.hero .label {
+  transform: rotate(-1.5deg);
+  transform-origin: left center;
+  width: max-content;
+  max-width: 100%;
+  font-size: 1.6rem;
+}
+.hero h1::after {
+  content: "";
+  display: block;
+  width: min(18rem, 86%);
+  height: 0.85rem;
+  margin-top: 0.35rem;
+  background: var(--pen-line) left center / 100% 100% no-repeat;
+}
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.facts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0; font-size: 0.98rem; color: var(--ink); }
+.facts span { border: 0; border-radius: 0; padding: 0; color: var(--ink); white-space: nowrap; }
+.facts b { font-weight: 700; }
+.facts span:not(:last-child)::after { content: " · "; color: var(--red); font-weight: 700; }
+
+.term {
+  position: relative;
+  background: var(--sheet);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.7;
+  min-width: 0;
+  overflow: auto;
+}
+.term-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--ink);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.term-body { padding: 14px 16px 18px; }
+.term-body p { white-space: pre; }
+.term .ok { color: var(--pass); }
+.term .bad { color: var(--red); }
+.term .dim { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .term-body.run p { animation: termLine 0.35s ease both; animation-delay: calc(var(--i) * 0.28s + 0.3s); }
+  @keyframes termLine { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+}
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.45rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--stamp-ink);
+  background: var(--stamp);
+  border: 4px solid var(--stamp-ink);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 var(--stamp-ink);
+  padding: 6px 10px 5px;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  user-select: none;
+}
+.stamp[hidden] { display: none !important; }
+#breakTerm.is-fail .term-body { padding-bottom: 62px; }
+#breakTerm.is-fail .stamp {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 2;
+}
+
+.band { padding-block: 64px; border-top: 1px solid var(--rule); }
+.band-head {
+  display: grid;
+  grid-template-columns: 8.75rem minmax(0, 1fr);
+  column-gap: 18px;
+  row-gap: 8px;
+  align-items: baseline;
+  margin-bottom: 28px;
+  max-width: 48em;
+}
+.band-head .label {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  text-align: right;
+  transform: rotate(-2deg);
+  transform-origin: right center;
+  padding-top: 0.35rem;
+}
+.band-head h2 { grid-column: 2; grid-row: 1; }
+.band-head .lead { grid-column: 2; }
+
+.struck { position: relative; display: inline-block; color: var(--muted); }
+.struck::after {
+  content: "";
+  position: absolute;
+  left: -0.12em;
+  right: -0.08em;
+  top: 54%;
+  height: 3px;
+  background: var(--red);
+  transform: rotate(-7deg);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.ring { position: relative; display: inline-block; }
+.ring::before {
+  content: "";
+  position: absolute;
+  left: -0.46em;
+  right: -0.5em;
+  top: -0.34em;
+  bottom: -0.28em;
+  border: 2.5px solid var(--red);
+  border-radius: 48% 52% 46% 54% / 58% 46% 54% 42%;
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+
+.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
+.pains li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 14px; align-content: start; }
+.pains .n {
+  grid-row: span 2;
+  font: 800 1.35rem/1.15 var(--display);
+  color: var(--ink);
+  background: none;
+  border-radius: 0;
+}
+.pains p { color: var(--ink); font-size: 0.98rem; }
+
+.fit { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.fit > div {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.chips { display: flex; flex-direction: column; gap: 8px; }
+.chips li {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 1px 0 1px 1.7em;
+  position: relative;
+  font-size: 1.02rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.chips li::before {
+  position: absolute;
+  left: 0;
+  top: -0.18em;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+.yes .chips li::before { content: "✓"; color: var(--pass); }
+.no .chips li::before { content: "✗"; color: var(--red); }
+
+.out {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 0;
+  border-top: 2px solid var(--ink);
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+.out li {
+  padding: 18px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 0;
+  border-right: 1px solid var(--rule);
+  min-width: 0;
+}
+.out li:last-child { border-right: 0; }
+.out .num { font-size: 2.7rem; }
+.out .t { font-weight: 700; line-height: 1.3; }
+.out .d { color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
+
+.timebar { display: flex; gap: 4px; height: 40px; }
+.timebar span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  font: 700 0.8rem/1 var(--mono);
+  overflow: hidden;
+}
+.timebar span:nth-child(even):not(.brk) { background: #3A362F; }
+.timebar .brk {
+  background: repeating-linear-gradient(135deg, rgba(106, 99, 88, 0.55) 0 2px, transparent 2px 7px);
+  color: transparent;
+}
+.timeaxis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font: 0.78rem var(--mono);
+  color: var(--muted);
+}
+.plan { display: flex; flex-direction: column; margin-top: 18px; }
+.plan li {
+  display: grid;
+  grid-template-columns: 28px 7.5em minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 4px 18px;
+  padding-block: 16px;
+  border-top: 1px solid var(--rule);
+  align-items: start;
+}
+.plan li:last-child { border-bottom: 1px solid var(--rule); }
+.plan .k {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: 800 1.15rem/1.3 var(--display);
+  text-align: left;
+}
+.plan .time {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  padding-top: 3px;
+  white-space: nowrap;
+}
+.plan .res { color: var(--ink); font-size: 0.98rem; }
+.plan .skill { font-family: var(--mono); font-size: 0.8rem; color: var(--ink); overflow-wrap: anywhere; }
+
+.flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; counter-reset: step; }
+.flow.wide { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.flow li {
+  counter-increment: step;
+  background: none;
+  border: 0;
+  border-top: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 12px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.flow li::before {
+  content: counter(step);
+  font: 800 1.05rem var(--display);
+  color: var(--ink);
+}
+.flow li.red { border-top-color: var(--red); }
+.flow li.red::before { color: var(--red); }
+.flow p { color: var(--ink); font-size: 0.95rem; line-height: 1.45; }
+
+.demos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; margin-top: 36px; }
+.demo { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.demo .btn { align-self: flex-start; }
+.demo-step {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.45rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--red);
+  line-height: 1;
+}
+.demo-note { font-size: 0.95rem; color: var(--muted); }
+.picks { display: flex; flex-direction: column; gap: 0; }
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 4px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pick::before {
+  content: "✓";
+  display: inline-block;
+  width: 1.15em;
+  font: 700 1.35rem/1 var(--hand);
+  color: var(--pass);
+}
+.pick[aria-pressed="false"] {
+  background: transparent;
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 2px;
+}
+.pick[aria-pressed="false"]::before { content: "✗"; color: var(--red); }
+
+.proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.proof.even { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.proof article {
+  background: none;
+  border: 0;
+  border-top: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.proof.even .stat { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.proof.even .stat .num { font-size: clamp(1.7rem, 2.6vw, 2.35rem); line-height: 1.25; padding-block: 0.2em 0.15em; }
+.stat .cap { color: var(--muted); font-size: 0.95rem; line-height: 1.45; }
+.source { font-size: 0.95rem; color: var(--muted); margin-top: 22px; max-width: 46em; }
+
+.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; align-items: start; }
+.about-id { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.who-row { display: flex; flex-direction: column; gap: 12px; }
+.who-row > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.avatar {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  object-fit: cover;
+}
+.about-id .name { font-family: var(--display); font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--body); font-size: 1rem; }
+.links a, .form-note a, .final a {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.links a:hover, .form-note a:hover, .final a:hover { color: var(--blue-deep); }
+.story { display: flex; flex-direction: column; gap: 16px; max-width: 36em; font-size: 1.06rem; line-height: 1.6; }
+.story .go { font-family: var(--body); font-weight: 700; font-size: 1.12rem; line-height: 1.45; color: var(--ink); }
+
+.deal { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 36px; align-items: start; }
+.pricing { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.seat {
+  background: none;
+  color: var(--ink);
+  border: 0;
+  border-radius: 0;
+  padding: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.seat .who {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--red);
+  line-height: 1;
+}
+.seat .num { font-size: clamp(2.2rem, 5vw, 3.1rem); line-height: 1.15; margin: 0.28em 0.35em 0.4em; }
+.seat .next {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 0.98rem;
+  color: var(--muted);
+  padding-top: 4px;
+  border: 0;
+}
+.terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
+.terms div { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-top: 10px; border-top: 1px solid var(--rule); }
+.terms dt {
+  font-family: var(--body);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+}
+.terms dd { font-weight: 700; line-height: 1.35; color: var(--ink); }
+
+.faq { display: flex; flex-direction: column; max-width: 46em; }
+.faq details { border-top: 1px solid var(--rule); }
+.faq details:last-child { border-bottom: 1px solid var(--rule); }
+.faq summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 16px;
+  color: var(--ink);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.35rem;
+  color: var(--ink);
+  flex: none;
+  line-height: 1;
+}
+.faq details[open] summary::after { content: "–"; }
+.faq details p { color: var(--ink); margin: -4px 0 16px; max-width: 42em; }
+
+.final {
+  background: var(--sheet);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 36px 36px 32px;
+  margin-block: 8px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  position: relative;
+}
+.final::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: var(--red);
+}
+.final h2 { color: var(--ink); max-width: 18em; }
+.final p { color: var(--muted); max-width: 40em; }
+.final .btn { background: var(--red); border-color: var(--red); color: #fff; }
+.final .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+.final .form-note { font-size: 0.9rem; line-height: 1.5; color: var(--muted); }
+.final .form-msg { color: var(--red); font-size: 0.95rem; font-weight: 600; }
+.final .form-msg:empty { display: none; }
+.final .done { color: var(--pass); font-size: 1.2rem; font-weight: 700; }
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-block: 8px 40px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.foot span:first-child {
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.45rem;
+  color: var(--red);
+  line-height: 1;
+}
+
+.signup { display: grid; gap: 14px; width: 100%; max-width: 34em; }
+.signup label { display: grid; gap: 6px; font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+.signup .opt { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
+.signup input, .signup textarea {
+  font: 400 1rem var(--body);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  padding: 12px 14px;
+  min-height: 48px;
+  width: 100%;
+}
+.signup textarea { min-height: 88px; resize: vertical; }
+.signup input:focus-visible, .signup textarea:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-color: var(--blue);
+}
+.signup input:-webkit-autofill {
+  -webkit-text-fill-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--paper) inset;
+}
+.signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; }
+.signup .btn { justify-self: start; cursor: pointer; }
+
+.cta-bar { display: none; }
+.byline { display: none; }
+
+@media (max-width: 860px) {
+  body { font-size: 16px; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  body::before { left: 8px; width: 2px; }
+  .top .who, .top .btn { display: none; }
+  .top nav { flex: 1; margin: 0; gap: 0; justify-content: space-between; font-size: 0.86rem; }
+  .top nav a { padding: 16px 3px; }
+  .top nav a.active::after { bottom: 9px; left: 3px; right: 3px; }
+  .byline { display: block; font-weight: 700; color: var(--ink); }
+  .byline .qa { font-size: 1.45rem; }
+
+  .hero, .about, .deal, .demos { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .hero { padding-block: 18px 40px; }
+  .hero-copy { gap: 16px; }
+  .hero .cta-row .btn { flex: 1 1 auto; }
+  .hero .cta-row .btn.ghost { display: none; }
+  .band { padding-block: 40px; }
+  .band-head {
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 20px;
+    gap: 6px;
+    max-width: none;
+  }
+  .band-head .label, .band-head h2, .band-head .lead { grid-column: 1; grid-row: auto; justify-self: start; text-align: left; }
+  .band-head .label { transform: rotate(-1deg); transform-origin: left center; padding-top: 0; }
+  .lead { font-size: 1.04rem; }
+  .story { font-size: 1rem; }
+
+  .pains { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .proof, .proof.even { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .out { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .out li { padding: 16px 14px 0 0; }
+  .out li:nth-child(odd) { border-right: 1px solid var(--rule); }
+  .out li:nth-child(even) { border-right: 0; }
+  .out li:nth-child(n+3) { border-top: 1px solid var(--rule); margin-top: 8px; padding-top: 14px; }
+  .out .num { font-size: 2.15rem; }
+  .proof.even .stat .num { font-size: 1.85rem; }
+
+  .plan li { grid-template-columns: 26px minmax(0, 1fr) auto; gap: 2px 12px; padding-block: 12px; }
+  .plan .time { grid-column: 3; grid-row: 1; padding-top: 4px; font-size: 0.78rem; }
+  .plan .what { display: contents; }
+  .plan .what h3 { grid-column: 2; grid-row: 1; }
+  .plan .skill { grid-column: 2 / -1; }
+  .plan .res { grid-column: 2 / -1; font-size: 0.95rem; }
+
+  .flow.wide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .demos { gap: 32px; margin-top: 24px; }
+  .who-row { flex-direction: row; align-items: center; gap: 14px; }
+  .avatar { width: 84px; max-width: 84px; }
+  .final { padding: 28px 18px 22px; margin-inline: 0; }
+  .final .cta-row { width: 100%; }
+  .final .btn { flex: 1 1 auto; }
+  .signup .btn { justify-self: stretch; }
+  #breakTerm.is-fail { padding-bottom: 6px; }
+  #breakTerm.is-fail .stamp {
+    position: static;
+    display: block;
+    width: max-content;
+    margin: 6px 18px 16px auto;
+    font-size: 1.25rem;
+    box-shadow: 6px 6px 0 var(--stamp-ink);
+  }
+  #breakTerm.is-fail .term-body { padding-bottom: 8px; }
+
+  .cta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    transform: translateY(110%);
+    transition: transform 0.25s ease;
+  }
+  .cta-bar.show { transform: none; }
+  .cta-bar p { font-size: 0.88rem; line-height: 1.3; color: var(--muted); }
+  .cta-bar b { color: var(--ink); display: block; font-size: 0.98rem; }
+}
+@media (max-width: 400px) {
+  .term { font-size: 0.74rem; }
+  .term-head, .term-body { padding-inline: 12px; }
+  .top nav { font-size: 0.78rem; }
+  .facts span { white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-bar { transition: none; }
+  .term-body.run p { animation: none; }
+}
+</style>
+
+</head>
+<body id="top">
+
+<header class="top" id="topbar">
+  <div class="top-in">
+    <a class="who" href="#top">Ігор Солопій · <span class="qa">QA</span></a>
+    <nav aria-label="Розділи">
+      <a href="#story">Історія</a>
+      <a href="#program">Програма</a>
+      <a href="#method">Демо</a>
+      <a href="#terms">Ціна</a>
+      <a href="#faq">Питання</a>
+    </nav>
+    <a class="btn sm" href="#contact">Записатись</a>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="byline">Ігор Солопій · <span class="qa">QA</span></p>
+    <p class="label">Воркшоп для manual QA</p>
+    <h1>Я manual QA. Я не став автоматизатором. Я <em class="hi">автоматизував свою регресію.</em></h1>
+    <p class="lead">Ніхто не напише твої автотести так, як ти. За чотири години зберемо проєкт і напишемо перші: і на API, і в браузері.</p>
+    <div class="cta-row">
+      <a class="btn" href="#contact">Записатись на перший набір</a>
+      <a class="btn ghost" href="#program">Програма</a>
+    </div>
+    <p class="facts">
+      <span><b>Наживо</b>, 4 години</span>
+      <span><b>Онлайн</b></span>
+      <span>Перший набір: <b>4 000 грн</b></span>
+    </p>
+  </div>
+
+  <figure class="term" aria-label="Звіт прогону тестів наприкінці воркшопу: 8 тестів, усі пройшли">
+    <div class="term-head"><span>npx playwright test</span><span>кінець воркшопу</span></div>
+    <div class="term-body run">
+<p class="dim" style="--i:0">Running 8 tests using 4 workers</p>
+<p style="--i:1"><span class="ok">  ✓</span>  api › реєстрація › успіх</p>
+<p style="--i:2"><span class="ok">  ✓</span>  api › реєстрація › без email</p>
+<p style="--i:3"><span class="ok">  ✓</span>  api › реєстрація › без пароля</p>
+<p style="--i:4"><span class="ok">  ✓</span>  api › реєстрація › кривий email</p>
+<p style="--i:5"><span class="ok">  ✓</span>  api › реєстрація › короткий пароль</p>
+<p style="--i:6"><span class="ok">  ✓</span>  api › реєстрація › зайнятий email</p>
+<p style="--i:7"><span class="ok">  ✓</span>  браузер › реєстрація</p>
+<p style="--i:8"><span class="ok">  ✓</span>  браузер › текст помилки</p>
+<p style="--i:10"><span class="ok">  8 passed</span> <span class="dim">(38.6s)</span></p>
+    </div>
+  </figure>
+</section>
+
+<section class="band" id="story">
+  <div class="band-head">
+    <p class="label">Моя історія</p>
+    <h2>Сім років збирався писати автотести</h2>
+  </div>
+  <div class="about">
+    <div class="about-id">
+      <div class="who-row">
+        <img class="avatar" src="assets/ihor-portrait.jpg" alt="Ігор Солопій" width="280" height="280" loading="lazy">
+        <div>
+          <p class="name">Ігор Солопій</p>
+          <p class="muted">QA Engineer, 10 років у тестуванні</p>
+        </div>
+      </div>
+      <p class="links">
+        <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Igorsolop0/qa-claude-skills" target="_blank" rel="noopener">Скіли на GitHub</a>
+      </p>
+    </div>
+    <div class="story">
+      <p>Сім років тому я вперше спробував перейти в автоматизацію. Думав: я ж добрий manual QA, значить, писатиму кращі тести. Але релізи не зупинялись, а у вільний час не було бажання.</p>
+      <p>Я люблю тестування. Люблю відповідати за якість і робити продукт кращим. Але втомлювався. І роками в голові крутилось одне: треба автоматизувати свою рутину. Бо ніхто, крім мене, не напише автотести так, як хочу я.</p>
+      <p>Коли з'явився AI, я описував тести в чаті. Виходило довго, і мені бракувало слів, щоб пояснити, чого я хочу. Агенти генерували гори коду, який я не контролював.</p>
+      <p>Спрацювало, коли я почав працювати з AI як з інструментом. Я вирішую, що варто автоматизувати і що взагалі можна. AI пише код, а результат я перевіряю так само, як перевіряв би роботу джуна.</p>
+      <p>AI стає в нашій щоденній роботі таким самим звичним інструментом, як Postman чи Charles. Для багатьох він досі чорна скринька. На воркшопі зробимо з неї зрозумілий тобі інструмент.</p>
+      <p class="go">Сьогодні мало бути добрим тестувальником, треба ще й бути швидким. Твій досвід, правильні інструменти, скіли, AI, і <span class="hi">погнав.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="proof">
+  <div class="band-head">
+    <p class="label">Що вийшло</p>
+    <h2>Мої цифри</h2>
+  </div>
+  <div class="proof even">
+    <article>
+      <h3>Регресія</h3>
+      <div class="stat">
+        <span class="num"><span class="struck">3 дні</span> → <span class="ring">2 хв</span></span>
+        <p class="cap">повна регресія руками проти API-тестів, які покривають бізнес-логіку</p>
+      </div>
+    </article>
+    <article>
+      <h3>З нуля</h3>
+      <div class="stat">
+        <span class="num">0 → <span data-to="73">73</span></span>
+        <p class="cap">тести за 9 робочих днів на робочому проєкті</p>
+      </div>
+    </article>
+    <article>
+      <h3>AI без нагляду</h3>
+      <div class="stat">
+        <span class="num bad">«Пройдено»</span>
+        <p class="cap">писав AI, коли тестував сам, хоча частина перевірок не пройшла</p>
+      </div>
+    </article>
+  </div>
+  <p class="source">Тому результат AI я перевіряю щоразу, а частину перевірок і далі проходжу руками: автоматизується не все.</p>
+</section>
+
+<section class="band" id="problem">
+  <div class="band-head">
+    <p class="label">Знайомо?</p>
+    <h2>Що крутиться в голові</h2>
+  </div>
+  <ul class="pains">
+    <li><span class="n">01</span><h3>«Треба автоматизувати»</h3><p>Кажеш собі це вже котрий рік. Релізи не зупиняються.</p></li>
+    <li><span class="n">02</span><h3>Відео багато, тестів нуль</h3><p>Усі показують AI в тестуванні. З чого почати тобі, не каже ніхто.</p></li>
+    <li><span class="n">03</span><h3>«Ренесанс manual QA»</h3><p>Розробники з AI пишуть код швидше, і релізів стає більше. Нове ти перевіряєш руками, а на регресію перед кожним релізом часу вже немає. Її час віддати автотестам.</p></li>
+  </ul>
+</section>
+
+<section class="band" id="fit">
+  <div class="band-head">
+    <p class="label">Кому це підійде</p>
+    <h2>Для тих, хто вже вміє тестувати</h2>
+  </div>
+  <div class="fit" style="grid-template-columns:minmax(0,1fr)">
+    <div class="yes">
+      <h3>Підійде, якщо ти</h3>
+      <ul class="chips">
+        <li>втомився від ручної регресії</li>
+        <li>пробував автоматизацію й кинув</li>
+        <li>загубився в інструментах і відео</li>
+        <li>любиш тестування й не хочеш ставати розробником</li>
+        <li>хочеш бути в команді тим, хто розуміє, як працювати з AI</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="outcome">
+  <div class="band-head">
+    <p class="label">З чим виходиш</p>
+    <h2>Свій проєкт і перші тести</h2>
+  </div>
+  <ul class="out">
+    <li><span class="num">1</span><span class="t">Playwright-проєкт</span><span class="d">у твоєму репозиторії, запускається однією командою</span></li>
+    <li><span class="num">6</span><span class="t">API-тестів</span><span class="d">успіх, порожні поля, невалідні дані</span></li>
+    <li><span class="num">2</span><span class="t">тести в браузері</span><span class="d">один позитивний сценарій, один негативний</span></li>
+    <li><span class="num">3</span><span class="t">скіли лишаються в тебе</span><span class="d">ними пишеш наступні тести вже на своїй роботі</span></li>
+  </ul>
+</section>
+
+<section class="band" id="program">
+  <div class="band-head">
+    <p class="label">Програма</p>
+    <h2>Чотири години по кроках</h2>
+  </div>
+  <div class="timebar" role="img" aria-label="Шкала чотирьох годин: вступ 15 хвилин, проєкт 60, API-тести 75, перерва 10, браузер 50, перевірка тестів 30">
+    <span style="flex:15">1</span><span style="flex:60">2</span><span style="flex:75">3</span><span class="brk" style="flex:10"></span><span style="flex:50">4</span><span style="flex:30">5</span>
+  </div>
+  <div class="timeaxis" aria-hidden="true"><span>0:00</span><span>1:00</span><span>2:00</span><span>3:00</span><span>4:00</span></div>
+  <ol class="plan">
+    <li><span class="k">1</span><span class="time">0:00–0:15</span><div class="what"><h3>Що вийде наприкінці</h3></div><p class="res">Готовий проєкт на екрані й один прогін.</p></li>
+    <li><span class="k">2</span><span class="time">0:15–1:15</span><div class="what"><h3>Збираємо проєкт</h3><p class="skill">pw-project-bootstrap</p></div><p class="res">Скіл питає, ти відповідаєш. Наприкінці перший зелений тест.</p></li>
+    <li><span class="k">3</span><span class="time">1:15–2:30</span><div class="what"><h3>Тести на API</h3><p class="skill">api-contract-writer</p></div><p class="res">Список сценаріїв затверджуєш ти, код пише AI.</p></li>
+    <li><span class="k">4</span><span class="time">2:40–3:30</span><div class="what"><h3>Тести в браузері</h3><p class="skill">e2e-writer</p></div><p class="res">Один позитивний сценарій і один негативний.</p></li>
+    <li><span class="k">5</span><span class="time">3:30–4:00</span><div class="what"><h3>Чи вміють тести падати</h3></div><p class="res">Ламаєш перевірку й дивишся, чи тест це помітив. Говоримо, які тести дешеві, а які дорогі.</p></li>
+  </ol>
+</section>
+
+<section class="band" id="method">
+  <div class="band-head">
+    <p class="label">Як це працює</p>
+    <h2>Ти вирішуєш, AI пише</h2>
+    <p class="lead">Скілом я називаю записану інструкцію для AI. Він питає, ти відповідаєш і затверджуєш.</p>
+  </div>
+  <ol class="flow wide">
+    <li><h3>Сценарії</h3><p>AI пропонує короткий список. Зайве ти викреслюєш.</p></li>
+    <li><h3>Код</h3><p>Тести пишуться тільки за твоїм списком.</p></li>
+    <li><h3>Перевірка</h3><p>Запускаєш і читаєш результат сам.</p></li>
+    <li class="red"><h3>Поломка</h3><p>Ламаєш перевірку й бачиш червоний результат.</p></li>
+  </ol>
+  <div class="demos">
+    <div class="demo">
+      <p class="demo-step">Спробуй: кроки 1 і 2</p>
+      <p class="demo-note">AI запропонував вісім сценаріїв для реєстрації. Два з них зайві. Викресли їх.</p>
+      <div class="picks" id="pickList">
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › успіх">Реєстрація з валідними даними</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › без email">Без email</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › без пароля">Без пароля</button>
+        <button class="pick" type="button" aria-pressed="true" data-junk data-test="api › реєстрація › email порожній">Email порожній</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › кривий email">Кривий email</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › короткий пароль">Короткий пароль</button>
+        <button class="pick" type="button" aria-pressed="true" data-junk data-test="браузер › кнопка зелена">Кнопка «Зареєструватись» зелена</button>
+        <button class="pick" type="button" aria-pressed="true" data-test="api › реєстрація › зайнятий email">Зайнятий email</button>
+      </div>
+      <button class="btn ghost" id="pickBtn" type="button">Написати тести</button>
+      <figure class="term" aria-live="polite">
+        <div class="term-head"><span>register.spec.ts</span><span id="pickState">чекає на список</span></div>
+        <div class="term-body" id="pickOut">
+<p class="dim">  тестів ще немає</p>
+        </div>
+      </figure>
+      <p class="demo-note" id="pickNote">Що лишиш у списку, те AI й напише.</p>
+    </div>
+    <div class="demo">
+      <p class="demo-step">Спробуй: крок 4</p>
+      <figure class="term" id="breakTerm" aria-live="polite">
+        <div class="term-head"><span>users.spec.ts</span><span id="demoState">зелений</span></div>
+        <div class="term-body">
+<p class="dim">const res = await api.users.me();</p>
+<p>expect(res.status()).toBe(<span id="demoCode" class="ok">200</span>);</p>
+<p> </p>
+<p id="demoLine1"><span class="ok">  ✓</span>  GET /me › 200, схема</p>
+<p id="demoLine2" class="dim">  1 passed</p>
+        </div>
+        <span class="stamp" id="failStamp" hidden aria-hidden="true">400</span>
+      </figure>
+      <button class="btn ghost" id="demoBtn" type="button">Зламати тест</button>
+      <p class="demo-note">Тест, який лишається зеленим після поломки, нічого не перевіряє. Цю вправу ти робиш на власних тестах.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="terms">
+  <div class="band-head">
+    <p class="label">Формат і ціна</p>
+    <h2>Як проходить воркшоп</h2>
+  </div>
+  <div class="deal">
+    <div class="pricing">
+      <div class="seat">
+        <span class="who">Перший набір</span>
+        <span class="num ring">4 000 грн</span>
+        <span class="next">Наступні набори: 6 000 грн</span>
+      </div>
+    </div>
+    <dl class="terms">
+      <div><dt>Тривалість</dt><dd>4 години, одна перерва</dd></div>
+      <div><dt>Формат</dt><dd>Онлайн, наживо</dd></div>
+      <div><dt>Група</dt><dd>До 8 людей</dd></div>
+      <div><dt>На чому</dt><dd>Тренувальний застосунок</dd></div>
+      <div><dt>Потрібно</dt><dd>Ноутбук і Claude Code</dd></div>
+      <div><dt>Дата</dt><dd>Оголошу в LinkedIn</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band" id="faq">
+  <div class="band-head">
+    <p class="label">Питання</p>
+    <h2>Питання до початку</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>Чи треба вміти програмувати?</summary>
+      <p>Ні. Код пише AI, ти вирішуєш, що перевіряти, і перевіряєш результат. Я сам не програміст.</p>
+    </details>
+    <details>
+      <summary>Ти навчиш мене Playwright?</summary>
+      <p>Ні. Покажу рівно стільки, щоб ти міг прочитати тест і зрозуміти, що він перевіряє. Пише тести AI через скіли.</p>
+    </details>
+    <details>
+      <summary>Що встановити заздалегідь?</summary>
+      <p>Node.js, git, редактор коду і Claude Code. Перед воркшопом надішлю чеклист із командою самоперевірки.</p>
+    </details>
+    <details>
+      <summary>Що з підпискою на Claude Code?</summary>
+      <p>Потрібна платна підписка, її кожен оплачує сам. Яку саме взяти, напишу в чеклисті.</p>
+    </details>
+    <details>
+      <summary>Я працюю в Cursor або Codex. Скіли підійдуть?</summary>
+      <p>Воркшоп проходить у Claude Code, щоб уся група працювала в одному інструменті. Формат скілів відкритий: після воркшопу їх можна перенести в Cursor чи Codex.</p>
+    </details>
+    <details>
+      <summary>AI не згенерує сотні непотрібних тестів?</summary>
+      <p>Згенерує, якщо просити його прямо. Тому спочатку йде короткий список сценаріїв, який затверджуєш ти.</p>
+    </details>
+    <details>
+      <summary>Це спрацює на моєму робочому проєкті?</summary>
+      <p>На воркшопі працюємо на тренувальному застосунку. Скіли стартують на будь-якому проєкті, далі ти доточуєш їх під свій продукт.</p>
+    </details>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <h2>Хочеш на перший набір?</h2>
+  <p id="signupLead">Залиш email, і я напишу, щойно буде дата. Платити зараз нічого не треба.</p>
+  <form class="signup" id="signup" action="https://formspree.io/f/mgaoldlw" method="POST">
+    <label>Ім'я
+      <input type="text" name="name" autocomplete="name" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" autocomplete="email" inputmode="email" required>
+    </label>
+    <label>Що тебе зупиняє почати автоматизацію? <span class="opt">Необов'язково</span>
+      <textarea name="message" rows="3"></textarea>
+    </label>
+    <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <input type="hidden" name="_subject" value="Заявка на воркшоп: перший набір">
+    <button class="btn" type="submit" id="signupBtn">Записатись на перший набір</button>
+    <p class="form-msg" id="signupMsg" role="status" aria-live="polite"></p>
+    <p class="form-note">Email потрібен лише для того, щоб повідомити дату набору. Нікому його не передаю. Заявки зберігає сервіс Formspree. Щоб видалити свою, напиши мені в <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">LinkedIn</a>.</p>
+  </form>
+  <p class="form-note" id="signupAlt">Не хочеш лишати email? <a href="https://www.linkedin.com/in/ihor-solopii-a9585a118" target="_blank" rel="noopener">Напиши мені в LinkedIn</a>.</p>
+</section>
+
+<footer class="foot">
+  <span>Ігор Солопій · Відень</span>
+  <span>Воркшоп для manual QA</span>
+</footer>
+
+</div>
+
+<div class="cta-bar" id="ctaBar">
+  <p><b>Перший набір: 4 000 грн</b>4 години, наживо</p>
+  <a class="btn sm" href="#contact">Записатись</a>
+</div>
+
+<script>
+(function () {
+  // Top bar state, reading progress, current-section highlight, phone contact bar
+  var topbar = document.getElementById('topbar');
+  var progress = document.getElementById('progress');
+  var ctaBar = document.getElementById('ctaBar');
+  var contact = document.getElementById('contact');
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.top nav a'));
+  var sections = navLinks.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var y = window.scrollY || window.pageYOffset;
+    var vh = window.innerHeight;
+    topbar.classList.toggle('scrolled', y > 8);
+    var h = document.documentElement.scrollHeight - vh;
+    progress.style.transform = 'scaleX(' + (h > 0 ? Math.min(y / h, 1) : 0) + ')';
+    var active = -1;
+    var mark = y + vh * 0.35;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= mark) active = i;
+    }
+    navLinks.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+    var nearContact = contact.getBoundingClientRect().top < vh;
+    ctaBar.classList.toggle('show', y > 420 && !nearContact);
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+})();
+
+(function () {
+  // Proof numbers count up once, when they enter view
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  document.querySelectorAll('[data-to]').forEach(function (el) {
+    var to = +el.getAttribute('data-to');
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var t = Math.min((ts - start) / 900, 1);
+        el.textContent = Math.round(to * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(step); else el.textContent = to;
+      }
+      requestAnimationFrame(step);
+    }, { threshold: 0.6 });
+    io.observe(el);
+  });
+})();
+
+(function () {
+  // Sign-up form: send to Formspree without leaving the page
+  var form = document.getElementById('signup');
+  if (!form || !window.fetch || !window.FormData) return;
+  var btn = document.getElementById('signupBtn');
+  var msg = document.getElementById('signupMsg');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Надсилаю…';
+    msg.textContent = '';
+    fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); })
+      .then(function () {
+        var done = document.createElement('p');
+        done.className = 'done';
+        done.setAttribute('role', 'status');
+        done.textContent = 'Дякую. Напишу, щойно буде дата.';
+        form.parentNode.replaceChild(done, form);
+        var lead = document.getElementById('signupLead');
+        var alt = document.getElementById('signupAlt');
+        if (lead) lead.remove();
+        if (alt) alt.remove();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Записатись на перший набір';
+        msg.textContent = 'Не вдалось надіслати. Спробуй ще раз або напиши мені в LinkedIn.';
+      });
+  });
+})();
+
+(function () {
+  // Scenario picker demo: tests are written only for the scenarios left in the list
+  var picks = Array.prototype.slice.call(document.querySelectorAll('#pickList .pick'));
+  var btn = document.getElementById('pickBtn');
+  var out = document.getElementById('pickOut');
+  var state = document.getElementById('pickState');
+  var note = document.getElementById('pickNote');
+
+  function kept() { return picks.filter(function (p) { return p.getAttribute('aria-pressed') === 'true'; }); }
+  function plural(n) { return n === 1 ? 'тест' : (n < 5 ? 'тести' : 'тестів'); }
+  function clear() {
+    out.className = 'term-body';
+    out.innerHTML = '<p class="dim">  тестів ще немає</p>';
+    state.textContent = 'чекає на список';
+    note.textContent = 'Що лишиш у списку, те AI й напише.';
+    btn.disabled = kept().length === 0;
+  }
+  picks.forEach(function (p) {
+    p.addEventListener('click', function () {
+      p.setAttribute('aria-pressed', p.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      clear();
+    });
+  });
+  btn.addEventListener('click', function () {
+    var list = kept();
+    var n = list.length;
+    if (!n) return;
+    var junk = list.filter(function (p) { return p.hasAttribute('data-junk'); }).length;
+    var html = '<p class="dim" style="--i:0">Running ' + n + (n === 1 ? ' test' : ' tests') + '</p>';
+    list.forEach(function (p, i) {
+      html += '<p style="--i:' + (i + 1) + '"><span class="ok">  ✓</span>  ' + p.getAttribute('data-test') + '</p>';
+    });
+    html += '<p style="--i:' + (n + 1) + '"><span class="ok">  ' + n + ' passed</span></p>';
+    out.className = 'term-body run';
+    out.innerHTML = html;
+    state.textContent = n + ' ' + plural(n);
+    note.textContent = junk
+      ? 'AI написав усе, що ти лишив. Зайвих серед них: ' + junk + '. Спробуй викреслити дубль і перевірку кольору.'
+      : 'Тести написано тільки за твоїм списком, зайвих немає.';
+  });
+})();
+
+(function () {
+  // Break-the-test demo
+  var btn = document.getElementById('demoBtn');
+  var code = document.getElementById('demoCode');
+  var line1 = document.getElementById('demoLine1');
+  var line2 = document.getElementById('demoLine2');
+  var state = document.getElementById('demoState');
+  var fig = document.getElementById('breakTerm');
+  var stamp = document.getElementById('failStamp');
+  var broken = false;
+  btn.addEventListener('click', function () {
+    broken = !broken;
+    if (broken) {
+      code.textContent = '201';
+      code.className = 'bad';
+      line1.innerHTML = '<span class="bad">  ✘</span>  GET /me › 200, схема';
+      line2.className = 'bad';
+      line2.textContent = '  Expected: 201  Received: 200';
+      state.textContent = 'червоний';
+      btn.textContent = 'Полагодити тест';
+      fig.classList.add('is-fail');
+      stamp.hidden = false;
+    } else {
+      code.textContent = '200';
+      code.className = 'ok';
+      line1.innerHTML = '<span class="ok">  ✓</span>  GET /me › 200, схема';
+      line2.className = 'dim';
+      line2.textContent = '  1 passed';
+      state.textContent = 'зелений';
+      btn.textContent = 'Зламати тест';
+      fig.classList.remove('is-fail');
+      stamp.hidden = true;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
