@@ -14,7 +14,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://igorsolop0.github.io/playwright-workshop/">
-<meta name="theme-color" content="#141311">
+<meta name="theme-color" content="#1C1C1A">
 <script>
 (function () {
   try {
@@ -23,35 +23,36 @@
   } catch (e) {}
   var dark = document.documentElement.getAttribute('data-theme') !== 'light';
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', dark ? '#141311' : '#F5F4F1');
+  if (meta) meta.setAttribute('content', dark ? '#1C1C1A' : '#F4F2EC');
 })();
 </script>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23141311'/%3E%3Crect x='8' y='15' width='16' height='2' fill='%23E8E2D6'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231C1C1A'/%3E%3Crect x='8' y='15' width='16' height='2' fill='%23E7E4DC'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <title>Воркшоп для manual QA</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Mono&display=swap">
 <style>
-/* Warm graphite. Dark is the default; light is a plain off-white. */
+/* Charcoal and brass. Dark is the default; light is a warm off-white. */
 :root {
-  --paper: #141311;
-  --sheet: #1E1C19;
-  --ink: #E8E2D6;
-  --muted: #B7AA9C;
-  --rule: #3A3632;
-  --accent: #C9857A;
-  --cta: #E4DCD0;
-  --cta-ink: #141311;
-  --cta-hover: #D3C9BB;
-  --pass: #B7C4AE;
-  --bar: #2C2926;
-  --bar-2: #3A3632;
-  --bar-ink: #E8E2D6;
-  --select: #3A342C;
-  --focus: #E4DCD0;
-  --disabled-bg: #2A2724;
-  --disabled-border: #4A453E;
-  --disabled-ink: #C9C0B4;
+  --paper: #1C1C1A;
+  --sheet: #262624;
+  --ink: #E7E4DC;
+  --muted: #B4B1A6;
+  --rule: #3E3E3A;
+  --accent: #D4B06A;
+  --fail: #D9897C;
+  --cta: #E7E4DC;
+  --cta-ink: #1C1C1A;
+  --cta-hover: #D5D2C8;
+  --pass: #B7C4B2;
+  --bar: #2A2A28;
+  --bar-2: #3A3A36;
+  --bar-ink: #E7E4DC;
+  --select: #3A3A36;
+  --focus: #E7E4DC;
+  --disabled-bg: #2A2A28;
+  --disabled-border: #4A4A46;
+  --disabled-ink: #C8C4B8;
   --display: 'Golos Text', 'Segoe UI', Arial, sans-serif;
   --body: 'Golos Text', 'Segoe UI', Arial, sans-serif;
   --mono: 'PT Mono', 'Courier New', monospace;
@@ -59,24 +60,25 @@
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --paper: #F5F4F1;
+  --paper: #F4F2EC;
   --sheet: #FFFFFF;
-  --ink: #1A1916;
-  --muted: #5C5852;
-  --rule: #E2DFD8;
-  --accent: #8F3A32;
-  --cta: #1A1916;
-  --cta-ink: #F5F4F1;
-  --cta-hover: #2E2C28;
-  --pass: #245C32;
-  --bar: #1A1916;
-  --bar-2: #3A3834;
-  --bar-ink: #F5F4F1;
-  --select: #E4DCD0;
-  --focus: #1A1916;
-  --disabled-bg: #E6E4DF;
+  --ink: #1C1C1A;
+  --muted: #5A5850;
+  --rule: #E4E1D8;
+  --accent: #7A5C1E;
+  --fail: #8F3A32;
+  --cta: #1C1C1A;
+  --cta-ink: #F4F2EC;
+  --cta-hover: #2E2E2A;
+  --pass: #3A5640;
+  --bar: #1C1C1A;
+  --bar-2: #3A3A36;
+  --bar-ink: #F4F2EC;
+  --select: #E7DCC4;
+  --focus: #1C1C1A;
+  --disabled-bg: #E6E3DB;
   --disabled-border: #C8C4BC;
-  --disabled-ink: #3A3834;
+  --disabled-ink: #3A3A36;
   color-scheme: light;
 }
 
@@ -125,7 +127,7 @@ section[id] { scroll-margin-top: calc(var(--bar-h) + 12px); }
   line-height: 1;
   white-space: nowrap;
 }
-.bad, .num.bad, .stat .num .bad { color: var(--accent); }
+.bad, .num.bad, .stat .num .bad { color: var(--fail); }
 
 .hi { font-style: normal; color: inherit; background: none; }
 h1 .hi {
@@ -278,7 +280,7 @@ h1 .hi {
 .term-body { padding: 14px 16px 18px; }
 .term-body p { white-space: pre; }
 .term .ok { color: var(--pass); }
-.term .bad { color: var(--accent); }
+.term .bad { color: var(--fail); }
 .term .dim { color: var(--muted); }
 
 .band { padding-block: 64px; border-top: 1px solid var(--rule); }
@@ -353,7 +355,7 @@ h1 .hi {
   top: 0;
 }
 .yes .chips li::before { content: "✓"; color: var(--pass); }
-.no .chips li::before { content: "✗"; color: var(--accent); }
+.no .chips li::before { content: "✗"; color: var(--fail); }
 
 .out {
   display: grid;
@@ -635,7 +637,7 @@ h1 .hi {
 .final p { color: var(--muted); max-width: 40em; }
 .final .btn.ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
 .final .form-note { font-size: 0.9rem; line-height: 1.5; color: var(--muted); }
-.final .form-msg { color: var(--accent); font-size: 0.95rem; font-weight: 600; }
+.final .form-msg { color: var(--fail); font-size: 0.95rem; font-weight: 600; }
 .final .form-msg:empty { display: none; }
 .final .done { color: var(--pass); font-size: 1.2rem; font-weight: 700; }
 .foot {
@@ -1108,7 +1110,7 @@ h1 .hi {
     btn.textContent = dark ? 'День' : 'Ніч';
     btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
     btn.setAttribute('aria-label', dark ? 'Увімкнути світлу тему' : 'Увімкнути темну тему');
-    if (meta) meta.setAttribute('content', dark ? '#141311' : '#F5F4F1');
+    if (meta) meta.setAttribute('content', dark ? '#1C1C1A' : '#F4F2EC');
   }
   btn.addEventListener('click', function () {
     var next = mode() === 'dark' ? 'light' : 'dark';
