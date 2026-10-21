@@ -250,7 +250,22 @@ h1 .hi {
   max-width: 100%;
 }
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
-.facts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0; font-size: 0.98rem; color: var(--ink); }
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
 .facts span { border: 0; border-radius: 0; padding: 0; color: var(--ink); white-space: nowrap; }
 .facts b { font-weight: 700; }
 .facts span:not(:last-child)::after { content: " · "; color: var(--muted); font-weight: 400; }
@@ -285,10 +300,10 @@ h1 .hi {
 .band { padding-block: 64px; border-top: 1px solid var(--rule); }
 .band-head {
   display: grid;
-  grid-template-columns: 8.75rem minmax(0, 1fr);
+  grid-template-columns: 9.5rem minmax(0, 1fr);
   column-gap: 18px;
   row-gap: 8px;
-  align-items: baseline;
+  align-items: start;
   margin-bottom: 28px;
   max-width: 48em;
 }
@@ -297,7 +312,11 @@ h1 .hi {
   grid-row: 1;
   justify-self: end;
   text-align: right;
-  padding-top: 4px;
+  padding-top: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  /* Sit on the heading's first line, centered, at every viewport. */
+  margin-top: calc((1.25 * clamp(1.5rem, 2.6vw, 2rem) - 1.2 * 0.875rem) / 2);
 }
 .band-head h2 { grid-column: 2; grid-row: 1; }
 .band-head .lead { grid-column: 2; }
@@ -708,7 +727,7 @@ h1 .hi {
     max-width: none;
   }
   .band-head .label, .band-head h2, .band-head .lead { grid-column: 1; grid-row: auto; justify-self: start; text-align: left; }
-  .band-head .label { padding-top: 0; }
+  .band-head .label { padding-top: 0; margin-top: 0; white-space: normal; }
   .lead { font-size: 1.04rem; }
   .story { font-size: 1rem; line-height: 24px; }
 
@@ -774,7 +793,7 @@ h1 .hi {
 
 <header class="top" id="topbar">
   <div class="top-in">
-    <a class="who" href="#top">Ігор Солопій · <span class="qa">QA</span></a>
+    <a class="who" href="#top">Ігор Солопій <span class="qa">QA</span></a>
     <nav aria-label="Розділи">
       <a href="#story">Історія</a>
       <a href="#program">Програма</a>
@@ -792,7 +811,7 @@ h1 .hi {
 
 <section class="hero">
   <div class="hero-copy">
-    <p class="byline">Ігор Солопій · <span class="qa">QA</span></p>
+    <p class="byline">Ігор Солопій <span class="qa">QA</span></p>
     <p class="label">Воркшоп для manual QA</p>
     <h1>Я manual QA. Я не став автоматизатором. Я <em class="hi">автоматизував свою регресію.</em></h1>
     <p class="lead">Ніхто не напише твої автотести так, як ти. За чотири години зберемо проєкт і напишемо перші: і на API, і в браузері.</p>
